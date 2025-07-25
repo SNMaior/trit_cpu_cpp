@@ -11,7 +11,7 @@ class CPU {
 public:
     bool halted = false;
 
-    TritWord registers[27]; // 27 регистров (3 трита адресуют 3^3)
+    Tryte registers[27]; // 27 регистров (3 трита адресуют 3^3)
     size_t pc = 0;           // Счётчик команд
     Memory* memory = nullptr; // Указатель на подключённую память
 
@@ -20,8 +20,8 @@ public:
         memory = mem;
     }
 
-    // Преобразование TritWord → int (только от -121 до 121)
-    int decodeTritWordToInt(const TritWord& word) {
+    // Преобразование Tryte → int (только от -121 до 121)
+    int decodeTryteToInt(const Tryte& word) {
         std::string s = word.toString();
         int result = 0;
         int power = 1;
@@ -37,8 +37,8 @@ public:
         return result;
     }
 
-    // Преобразование int → TritWord (в пределах [-13, +13])
-    TritWord encodeIntToTritWord(int value) {
+    // Преобразование int → Tryte (в пределах [-13, +13])
+    Tryte encodeIntToTryte(int value) {
         std::string result = "";
 
         while (value != 0 && result.length() < 3) {
@@ -58,7 +58,7 @@ public:
         while (result.length() < 3)
             result = "0" + result;
 
-        return TritWord(
+        return Tryte(
             charToTrit(result[0]),
             charToTrit(result[1]),
             charToTrit(result[2])
@@ -66,7 +66,7 @@ public:
     }
 
     // Инструкции
-    void execute(const TritWord& instruction) {
+    void execute(const Tryte& instruction) {
         std::string op = instruction.toString();
 
         if (op == "+00") {
@@ -74,41 +74,41 @@ public:
             halted = true;
         }
         else if (op == "++0") { // INC R0 ++ → R0
-            int val = decodeTritWordToInt(registers[0]);
+            int val = decodeTryteToInt(registers[0]);
             val += 1;
-            registers[0] = encodeIntToTritWord(val);
+            registers[0] = encodeIntToTryte(val);
             std::cout << "INC R0 → " << val << std::endl;
         }
         else if (op == "--0") { // DEC R0 -- → R0
-            int val = decodeTritWordToInt(registers[0]);
+            int val = decodeTryteToInt(registers[0]);
             val -= 1;
-            registers[0] = encodeIntToTritWord(val);
+            registers[0] = encodeIntToTryte(val);
             std::cout << "DEC R0 → " << val << std::endl;
         }
         else if (op == "+0+") { // LOAD [адрес] → R0
-            TritWord addressWord = memory->get(pc++);
-            int addr = decodeTritWordToInt(addressWord);
-            TritWord value = memory->get(addr);
+            Tryte addressWord = memory->get(pc++);
+            int addr = decodeTryteToInt(addressWord);
+            Tryte value = memory->get(addr);
             registers[0] = value;
             std::cout << "LOAD [" << addr << "] → R0: " << value.toString() << std::endl;
         }
         else if (op == "0++") { // ADD R0 + R1 → R0
-            int a = decodeTritWordToInt(registers[0]);
-            int b = decodeTritWordToInt(registers[1]);
+            int a = decodeTryteToInt(registers[0]);
+            int b = decodeTryteToInt(registers[1]);
             int result = a + b;
-            registers[0] = encodeIntToTritWord(result);
+            registers[0] = encodeIntToTryte(result);
             std::cout << "ADD R0 + R1 → R0: " << a << " + " << b << " = " << result << std::endl;
         }
         else if (op == "0--") { // SUB R0 - R1 → R0
-            int a = decodeTritWordToInt(registers[0]);
-            int b = decodeTritWordToInt(registers[1]);
+            int a = decodeTryteToInt(registers[0]);
+            int b = decodeTryteToInt(registers[1]);
             int result = a - b;
-            registers[0] = encodeIntToTritWord(result);
+            registers[0] = encodeIntToTryte(result);
             std::cout << "SUB R0 - R1 → R0: " << a << " - " << b << " = " << result << std::endl;
         }
         else if (op == "-0+") { // JMP
-            TritWord addressWord = memory->get(pc++);
-            int addr = decodeTritWordToInt(addressWord);
+            Tryte addressWord = memory->get(pc++);
+            int addr = decodeTryteToInt(addressWord);
             std::cout << "JMP → " << addr << std::endl;
             pc = addr;
         }
@@ -127,7 +127,7 @@ public:
 
         halted = false;
         while (!halted && pc < memory->size()) {
-            TritWord instr = memory->get(pc++);
+            Tryte instr = memory->get(pc++);
             execute(instr);
         }
     }
@@ -184,7 +184,7 @@ public:
             Trit a = charToTrit(ternary[i * 3]);
             Trit b = charToTrit(ternary[i * 3 + 1]);
             Trit c = charToTrit(ternary[i * 3 + 2]);
-            TritWord word(a, b, c);
+            Tryte word(a, b, c);
             memory->set(address + i, word);
 
             std::cout << "Ячейка памяти " << (address + i) << ": " << word.toString() << std::endl;

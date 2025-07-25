@@ -153,6 +153,7 @@ int main() {
 #include "trit.h"
 #include "memory.h"
 #include "CPU.h"
+#include "trit6.h"
 
 int main() {
     SetConsoleOutputCP(CP_UTF8);
@@ -164,26 +165,27 @@ int main() {
     cpu.attachMemory(&mem);
 
     // Инициализируем R0 = 8, R1 = 2
-    cpu.registers[0] = cpu.encodeIntToTritWord(8);
-    cpu.registers[1] = cpu.encodeIntToTritWord(3);
+    cpu.registers[0] = cpu.encodeIntToTryte(8);
+    cpu.registers[1] = cpu.encodeIntToTryte(3);
 
     // Устанавливаем значения в память
-    mem.set(0, TritWord(Trit::Plus, Trit::Plus, Trit::Zero)); // INC R0
-    mem.set(1, TritWord(Trit::Plus, Trit::Plus, Trit::Zero)); // INC R0
-    mem.set(2, TritWord(Trit::Minus, Trit::Minus, Trit::Zero)); // DEC R0
-    mem.set(3, TritWord(Trit::Plus, Trit::Zero, Trit::Plus)); // LOAD
-    mem.set(4, cpu.encodeIntToTritWord(7));                  // адрес
-    mem.set(5, TritWord(Trit::Minus, Trit::Zero, Trit::Plus)); // JMP
-    mem.set(6, cpu.encodeIntToTritWord(8));                  // адрес
-    mem.set(7, cpu.encodeIntToTritWord(10));                 // значение
+    mem.set(0, Tryte(Trit::Plus, Trit::Plus, Trit::Zero)); // INC R0
+    mem.set(1, Tryte(Trit::Plus, Trit::Plus, Trit::Zero)); // INC R0
+    mem.set(2, Tryte(Trit::Minus, Trit::Minus, Trit::Zero)); // DEC R0
+    mem.set(3, Tryte(Trit::Plus, Trit::Zero, Trit::Plus)); // LOAD
+    mem.set(4, cpu.encodeIntToTryte(7));                  // адрес
+    mem.set(5, Tryte(Trit::Minus, Trit::Zero, Trit::Plus)); // JMP
+    mem.set(6, cpu.encodeIntToTryte(8));                  // адрес
+    mem.set(7, cpu.encodeIntToTryte(10));                 // значение
 
     // ADD/SUB:
-    mem.set(8, TritWord(Trit::Zero, Trit::Plus, Trit::Plus)); // ADD R0 + R1
-    mem.set(9, TritWord(Trit::Zero, Trit::Minus, Trit::Minus)); // SUB R0 - R1
-    mem.set(10, TritWord(Trit::Plus, Trit::Zero, Trit::Zero)); // HALT
+    mem.set(8, Tryte(Trit::Zero, Trit::Plus, Trit::Plus)); // ADD R0 + R1
+    mem.set(9, Tryte(Trit::Zero, Trit::Minus, Trit::Minus)); // SUB R0 - R1
+    mem.set(10, Tryte(Trit::Plus, Trit::Zero, Trit::Zero)); // HALT
 
     cpu.run();
 
     std::cout << "R0 в конце: " << cpu.registers[0].toString() << std::endl;
+    p_trit6({ 221, 251, 241 }); // ⚁⚂⚃
 }
 

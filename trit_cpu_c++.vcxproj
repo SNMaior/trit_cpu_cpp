@@ -129,6 +129,7 @@
     <ClInclude Include="CPU.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="trit.h" />
+    <ClInclude Include="trit6.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
