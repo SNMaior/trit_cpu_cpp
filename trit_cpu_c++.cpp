@@ -160,32 +160,19 @@ int main() {
     SetConsoleCP(CP_UTF8);
     std::setlocale(LC_ALL, "");
 
-    Memory mem(11);
+    Memory mem(64);
+	Memory memory(10); // создаем память размером 10 ячеек
     CPU cpu;
+    cpu.registers[0] = Tryte(Trit::Zero, Trit::Minus, Trit::Plus); // напрямую: 0-+
+	mem.loadFromFile("test.tcode"); // загрузка файла
+
+	memory.saveToFile("test.tcode"); // сохранение файла
+
+    
     cpu.attachMemory(&mem);
-
-    // Инициализируем R0 = 8, R1 = 2
-    cpu.registers[0] = cpu.encodeIntToTryte(8);
-    cpu.registers[1] = cpu.encodeIntToTryte(3);
-
-    // Устанавливаем значения в память
-    mem.set(0, Tryte(Trit::Plus, Trit::Plus, Trit::Zero)); // INC R0
-    mem.set(1, Tryte(Trit::Plus, Trit::Plus, Trit::Zero)); // INC R0
-    mem.set(2, Tryte(Trit::Minus, Trit::Minus, Trit::Zero)); // DEC R0
-    mem.set(3, Tryte(Trit::Plus, Trit::Zero, Trit::Plus)); // LOAD
-    mem.set(4, cpu.encodeIntToTryte(7));                  // адрес
-    mem.set(5, Tryte(Trit::Minus, Trit::Zero, Trit::Plus)); // JMP
-    mem.set(6, cpu.encodeIntToTryte(8));                  // адрес
-    mem.set(7, cpu.encodeIntToTryte(10));                 // значение
-
-    // ADD/SUB:
-    mem.set(8, Tryte(Trit::Zero, Trit::Plus, Trit::Plus)); // ADD R0 + R1
-    mem.set(9, Tryte(Trit::Zero, Trit::Minus, Trit::Minus)); // SUB R0 - R1
-    mem.set(10, Tryte(Trit::Plus, Trit::Zero, Trit::Zero)); // HALT
-
     cpu.run();
 
-    std::cout << "R0 в конце: " << cpu.registers[0].toString() << std::endl;
-    p_trit6({ 221, 251, 241 }); // ⚁⚂⚃
+    std::cout << "R0 = " << cpu.registers[0].toString() << std::endl;
+    return 0;
 }
 

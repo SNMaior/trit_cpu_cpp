@@ -126,10 +126,12 @@
     <ClCompile Include="trit_cpu_c++.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ALU.h" />
     <ClInclude Include="CPU.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="trit.h" />
     <ClInclude Include="trit6.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

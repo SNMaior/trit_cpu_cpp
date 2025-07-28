@@ -1,4 +1,4 @@
-// Trit.h — определение типа трита и трибайта
+п»ї// Trit.h вЂ” РѕРїСЂРµРґРµР»РµРЅРёРµ С‚РёРїР° С‚СЂРёС‚Р° Рё С‚СЂРёР±Р°Р№С‚Р°
 #pragma once
 #include <cstdint>
 #include <string>
@@ -12,7 +12,7 @@ enum class Trit : int8_t {
 
 class Tryte {
 private:
-    uint8_t data = 0; // 6 бит на 3 трита (2 бита на каждый)
+    uint8_t data = 0; // 6 Р±РёС‚ РЅР° 3 С‚СЂРёС‚Р° (2 Р±РёС‚Р° РЅР° РєР°Р¶РґС‹Р№)
 
     static constexpr uint8_t encodeTrit(Trit t) {
         switch (t) {
@@ -20,7 +20,7 @@ private:
         case Trit::Zero:  return 0b01;
         case Trit::Plus:  return 0b10;
         }
-        return 0xFF; // недостижимый случай
+        return 0xFF; // РЅРµРґРѕСЃС‚РёР¶РёРјС‹Р№ СЃР»СѓС‡Р°Р№
     }
 
     static constexpr Trit decodeTrit(uint8_t bits) {
@@ -28,7 +28,7 @@ private:
         case 0b00: return Trit::Minus;
         case 0b01: return Trit::Zero;
         case 0b10: return Trit::Plus;
-        default: throw std::invalid_argument("Сука блять, вернул как было и пошел нахуй от сюда");
+        default: throw std::invalid_argument("РќРµ Р·РЅР°СЋ РєР°Рє, РЅРѕ СЌС‚РѕРіРѕ Р±С‹С‚СЊ РЅРµ РґРѕР»Р¶РЅРѕ");
         }
     }
 
@@ -48,33 +48,7 @@ public:
         data = (data & mask) | (encodeTrit(t) << ((2 - index) * 2));
     }
 
-    // Числовое значение в диапазоне [-13, +13]
-    /* Перенос в TryteUtils
-    constexpr int toInt() const {
-        int t0 = static_cast<int>(get(0));
-        int t1 = static_cast<int>(get(1));
-        int t2 = static_cast<int>(get(2));
-        return t0 * 9 + t1 * 3 + t2;
-    }
-
-    
-    static Tryte fromInt(int value) {
-        if (value < -13 || value > 13) throw std::out_of_range("Tryte value must be in [-13..+13]");
-        int v = value;
-        Trit trits[3];
-        for (int i = 2; i >= 0; --i) {
-            int div = (i == 0) ? 9 : (i == 1) ? 3 : 1;
-            int q = v / div;
-            v %= div;
-            if (q == -2) { trits[2 - i] = Trit::Plus; v -= div; } // балансировка
-            else if (q == 2) { trits[2 - i] = Trit::Minus; v += div; }
-            else trits[2 - i] = static_cast<Trit>(q);
-        }
-        return Tryte(trits[0], trits[1], trits[2]);
-    }
-    */
-
-	// Отладка, удалить в релизе
+	// РћС‚Р»Р°РґРєР°, СѓРґР°Р»РёС‚СЊ РІ СЂРµР»РёР·Рµ
     std::string toString() const {
         std::string out;
         for (int i = 0; i < 3; ++i) {
@@ -87,5 +61,34 @@ public:
         return out;
     }
 
+	// РћРїСЂРµРґРµР»РµРЅРёРµ РѕРїРµСЂР°С‚РѕСЂР° СЃСЂР°РІРЅРµРЅРёСЏ РґР»СЏ Tryte 
+    constexpr bool operator==(const Tryte& other) const noexcept {
+        return data == other.data;
+    }
+
     constexpr uint8_t raw() const noexcept { return data; }
+
+    Tryte inc() const;
+    Tryte dec() const;
+    Tryte negate() const;
+
+    struct TritSum {
+        Trit value;
+        int carry;
+    };
+
+    static constexpr TritSum normalizeTritSum(int sum);
+
+    Tryte add(const Tryte& rhs) const;
+    Tryte sub(const Tryte& rhs) const;
+
+    Tryte logicalNot() const;
+    Tryte logicalAnd(const Tryte& other) const;
+    Tryte logicalOr(const Tryte& other) const;
+    Tryte logicalXor(const Tryte& other) const;
+
+    bool equals(const Tryte& other) const;
+    bool lessThan(const Tryte& other) const;
+    bool greaterThan(const Tryte& other) const;
+
 };
