@@ -1,4 +1,4 @@
-﻿// Trit.h — определение типа трита и трибайта
+﻿// Trit.h — определение типа трита и трайта
 #pragma once
 #include <cstdint>
 #include <string>

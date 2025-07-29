@@ -21,7 +21,7 @@ public:
         memory = mem;
     }
 
-    // Преобразование Tryte → int (только от -121 до 121)
+    // Преобразование Tryte → int (только от --- до +++)
     int decodeTryteToInt(const Tryte& word) {
         std::string s = word.toString();
         int result = 0;
