@@ -1,4 +1,4 @@
-// Memory.hpp — определение памяти из трайтов
+// memory.hpp — определение памяти из трайтов
 #pragma once
 #include <fstream>
 #include <sstream>
@@ -7,22 +7,22 @@
 #include <vector>
 #include "trit.h"
 
-// Класс памяти: содержит массив Tryte'ов
-class Memory {
-    std::vector<Tryte> data;
+// Класс памяти: содержит массив tryte'ов
+class memory {
+    std::vector<tryte> data;
 
 public:
 
     // Конструктор: выделяет память под n трайтов
-    explicit Memory(size_t size) : data(size) {} // инициализация нулями
+    explicit memory(size_t size) : data(size) {} // инициализация нулями
 
     // Получение значения по адресу
-    Tryte get(size_t address) const {
+    tryte get(size_t address) const {
         return data.at(address); // безопасный доступ с проверкой границ
     }
 
     // Запись значения по адресу
-    void set(size_t address, const Tryte& value) {
+    void set(size_t address, const tryte& value) {
         data.at(address) = value;
     }
 
@@ -31,18 +31,18 @@ public:
         return data.size();
     }
 
-    // Сохранение в текстовом виде (Trit::Plus ...)
+    // Сохранение в текстовом виде (trit::Plus ...)
     void saveToFile(const std::string& filename) const {
         std::ofstream out(filename);
         if (!out) throw std::runtime_error("Не удалось открыть файл для записи");
 
         for (const auto& word : data) {
             for (int i = 0; i < 3; ++i) {
-                Trit t = word.get(i);
+                trit t = word.get(i);
                 switch (t) {
-                case Trit::Plus:  out << "Trit::Plus";  break;
-                case Trit::Zero:  out << "Trit::Zero";  break;
-                case Trit::Minus: out << "Trit::Minus"; break;
+                case trit::Plus:  out << "trit::Plus";  break;
+                case trit::Zero:  out << "trit::Zero";  break;
+                case trit::Minus: out << "trit::Minus"; break;
                 }
                 if (i < 2) out << " ";
             }
@@ -50,7 +50,7 @@ public:
         }
     }
 
-    // Загрузка из текстового вида (Trit::Plus ...)
+    // Загрузка из текстового вида (trit::Plus ...)
     void loadFromFile(const std::string& filename) {
         std::ifstream in(filename);
         if (!in) throw std::runtime_error("Не удалось открыть файл для чтения");
@@ -64,11 +64,11 @@ public:
 
             if (!(iss >> a >> b >> c)) continue;
 
-            Trit t0 = stringToTrit(a);
-            Trit t1 = stringToTrit(b);
-            Trit t2 = stringToTrit(c);
+            trit t0 = stringTotrit(a);
+            trit t1 = stringTotrit(b);
+            trit t2 = stringTotrit(c);
 
-            data[i++] = Tryte(t0, t1, t2);
+            data[i++] = tryte(t0, t1, t2);
         }
     }
 
@@ -80,10 +80,10 @@ public:
     }
 
 private:
-    Trit stringToTrit(const std::string& s) const {
-        if (s == "Trit::Plus")  return Trit::Plus;
-        if (s == "Trit::Zero")  return Trit::Zero;
-        if (s == "Trit::Minus") return Trit::Minus;
+    trit stringTotrit(const std::string& s) const {
+        if (s == "trit::Plus")  return trit::Plus;
+        if (s == "trit::Zero")  return trit::Zero;
+        if (s == "trit::Minus") return trit::Minus;
         throw std::invalid_argument("Недопустимое значение трита: " + s);
     }
 };

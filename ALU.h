@@ -1,138 +1,138 @@
-п»ї// ALU.h - Р°СЂРёС„РјРµС‚РёРєРѕ-Р»РѕРіРёС‡РµСЃРєРѕРµ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ
+// ALU.h - арифметико-логическое устройство
 #pragma once
 #include <algorithm>
-#include "Trit.h"
+#include "trit.h"
 
-Tryte Tryte::inc() const {
-    Tryte result = *this;
+tryte tryte::inc() const {
+    tryte result = *this;
     for (int i = 2; i >= 0; --i) {
-        Trit t = result.get(i);
+        trit t = result.get(i);
         switch (t) {
-        case Trit::Minus:
-            result.set(i, Trit::Zero);
+        case trit::Minus:
+            result.set(i, trit::Zero);
             return result;
-        case Trit::Zero:
-            result.set(i, Trit::Plus);
+        case trit::Zero:
+            result.set(i, trit::Plus);
             return result;
-        case Trit::Plus:
-            result.set(i, Trit::Minus);
-            break; // РїСЂРѕРґРѕР»Р¶Р°РµРј РїРµСЂРµРЅРѕСЃ
+        case trit::Plus:
+            result.set(i, trit::Minus);
+            break; // продолжаем перенос
         }
     }
     return result;
 }
 
-Tryte Tryte::dec() const {
-    Tryte result = *this;
+tryte tryte::dec() const {
+    tryte result = *this;
     for (int i = 2; i >= 0; --i) {
-        Trit t = result.get(i);
+        trit t = result.get(i);
         switch (t) {
-        case Trit::Plus:
-            result.set(i, Trit::Zero);
+        case trit::Plus:
+            result.set(i, trit::Zero);
             return result;
-        case Trit::Zero:
-            result.set(i, Trit::Minus);
+        case trit::Zero:
+            result.set(i, trit::Minus);
             return result;
-        case Trit::Minus:
-            result.set(i, Trit::Plus);
-            break; // РїСЂРѕРґРѕР»Р¶Р°РµРј РїРµСЂРµРЅРѕСЃ
+        case trit::Minus:
+            result.set(i, trit::Plus);
+            break; // продолжаем перенос
         }
     }
     return result;
 }
 
-Tryte Tryte::negate() const {
-    Tryte result;
+tryte tryte::negate() const {
+    tryte result;
     for (int i = 0; i < 3; ++i) {
-        Trit t = get(i);
-        result.set(i, static_cast<Trit>(-static_cast<int>(t)));
+        trit t = get(i);
+        result.set(i, static_cast<trit>(-static_cast<int>(t)));
     }
     return result;
 }
 
-constexpr Tryte::TritSum Tryte::normalizeTritSum(int sum) {
-    if (sum > 1) return { Trit::Minus, +1 };
-    if (sum < -1) return { Trit::Plus, -1 };
-    return { static_cast<Trit>(sum), 0 };
+constexpr tryte::tritSum tryte::normalizetritSum(int sum) {
+    if (sum > 1) return { trit::Minus, +1 };
+    if (sum < -1) return { trit::Plus, -1 };
+    return { static_cast<trit>(sum), 0 };
 }
 
-Tryte Tryte::add(const Tryte& rhs) const {
-    Tryte result;
+tryte tryte::add(const tryte& rhs) const {
+    tryte result;
     int carry = 0;
     for (int i = 2; i >= 0; --i) {
         int a = static_cast<int>(this->get(i));
         int b = static_cast<int>(rhs.get(i));
         int s = a + b + carry;
-        TritSum norm = normalizeTritSum(s);
+        tritSum norm = normalizetritSum(s);
         result.set(i, norm.value);
         carry = norm.carry;
     }
     return result;
 }
 
-Tryte Tryte::sub(const Tryte& rhs) const {
+tryte tryte::sub(const tryte& rhs) const {
     return this->add(rhs.negate());
 }
 
 
 
-// Р›РѕРіРёС‡РµСЃРєРѕРµ РќР• (РїРѕ С‚СЂРёС‚Р°Рј)
-Tryte Tryte::logicalNot() const {
-    Tryte result;
+// Логическое НЕ (по тритам)
+tryte tryte::logicalNot() const {
+    tryte result;
     for (int i = 0; i < 3; ++i) {
-        Trit t = get(i);
+        trit t = get(i);
         switch (t) {
-        case Trit::Plus:  result.set(i, Trit::Minus); break;
-        case Trit::Minus: result.set(i, Trit::Plus);  break;
-        case Trit::Zero:  result.set(i, Trit::Zero);  break;
+        case trit::Plus:  result.set(i, trit::Minus); break;
+        case trit::Minus: result.set(i, trit::Plus);  break;
+        case trit::Zero:  result.set(i, trit::Zero);  break;
         }
     }
     return result;
 }
 
-// РўСЂРѕРёС‡РЅС‹Р№ AND вЂ” РїРѕСЂР°Р·СЂСЏРґРЅС‹Р№ РјРёРЅРёРјСѓРј
-Tryte Tryte::logicalAnd(const Tryte& other) const {
-    Tryte result;
+// Троичный AND — поразрядный минимум
+tryte tryte::logicalAnd(const tryte& other) const {
+    tryte result;
     for (int i = 0; i < 3; ++i) {
         int a = static_cast<int>(get(i));
         int b = static_cast<int>(other.get(i));
-        result.set(i, static_cast<Trit>(std::min<int>(a, b)));
+        result.set(i, static_cast<trit>(std::min<int>(a, b)));
     }
     return result;
 }
 
-// РўСЂРѕРёС‡РЅС‹Р№ OR вЂ” РїРѕСЂР°Р·СЂСЏРґРЅС‹Р№ РјР°РєСЃРёРјСѓРј
-Tryte Tryte::logicalOr(const Tryte& other) const {
-    Tryte result;
+// Троичный OR — поразрядный максимум
+tryte tryte::logicalOr(const tryte& other) const {
+    tryte result;
     for (int i = 0; i < 3; ++i) {
         int a = static_cast<int>(get(i));
         int b = static_cast<int>(other.get(i));
-        result.set(i, static_cast<Trit>(std::max<int>(a, b)));
+        result.set(i, static_cast<trit>(std::max<int>(a, b)));
     }
     return result;
 }
 
-// РўСЂРѕРёС‡РЅС‹Р№ XOR вЂ” СЃСѓРјРјР° в†’ РѕР±СЂРµР·РєР° РґРѕ РґРёР°РїР°Р·РѕРЅР° (в€’1, 0, +1)
-Tryte Tryte::logicalXor(const Tryte& other) const {
-    Tryte result;
+// Троичный XOR — сумма ? обрезка до диапазона (?1, 0, +1)
+tryte tryte::logicalXor(const tryte& other) const {
+    tryte result;
     for (int i = 0; i < 3; ++i) {
         int a = static_cast<int>(get(i));
         int b = static_cast<int>(other.get(i));
         int x = a + b;
         if (x > 1) x = 1;
         if (x < -1) x = -1;
-        result.set(i, static_cast<Trit>(x));
+        result.set(i, static_cast<trit>(x));
     }
     return result;
 }
 
-// РЎСЂР°РІРЅРµРЅРёРµ РЅР° СЂР°РІРµРЅСЃС‚РІРѕ (РІСЃС‘ Р»Рё Р±РёС‚С‹ РѕРґРёРЅР°РєРѕРІС‹)
-bool Tryte::equals(const Tryte& other) const {
+// Сравнение на равенство (всё ли биты одинаковы)
+bool tryte::equals(const tryte& other) const {
     return raw() == other.raw();
 }
 
-// РЎСЂР°РІРЅРµРЅРёРµ РїРѕ Р·РЅР°С‡РµРЅРёСЋ (С‚РѕР»СЊРєРѕ РµСЃР»Рё С‚С‹ Р·Р°РґР°С€СЊ РїРѕСЂСЏРґРѕРє С‚СЂРёС‚РѕРІ!)
-bool Tryte::lessThan(const Tryte& other) const {
+// Сравнение по значению (только если ты задашь порядок тритов!)
+bool tryte::lessThan(const tryte& other) const {
     for (int i = 0; i < 3; ++i) {
         int a = static_cast<int>(get(i));
         int b = static_cast<int>(other.get(i));
@@ -142,6 +142,6 @@ bool Tryte::lessThan(const Tryte& other) const {
     return false;
 }
 
-bool Tryte::greaterThan(const Tryte& other) const {
+bool tryte::greaterThan(const tryte& other) const {
     return other.lessThan(*this);
 }
