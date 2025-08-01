@@ -10,6 +10,7 @@ enum class trit : int8_t {
     Plus = 1
 };
 
+
 class tryte {
 private:
     uint8_t data = 0; // 6 бит на 3 трита (2 бита на каждый)

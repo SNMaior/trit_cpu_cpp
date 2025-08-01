@@ -2,6 +2,7 @@
 #pragma once
 #include "trit.h"
 
+
 class utils {
 public:
     static int toInt(const tryte& t) {

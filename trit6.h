@@ -3,6 +3,7 @@
 #include <array>
 #include <string>
 
+
 // const std::array<std::string, 729> TRIT6
 const char* TRIT6[729] = {
 

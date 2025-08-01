@@ -7,6 +7,7 @@
 #include <vector>
 #include "trit.h"
 
+
 // Класс памяти: содержит массив tryte'ов
 class memory {
     std::vector<tryte> data;

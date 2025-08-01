@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "trit.h"
 
+
 tryte tryte::inc() const {
     tryte result = *this;
     for (int i = 2; i >= 0; --i) {
