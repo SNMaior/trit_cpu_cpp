@@ -112,7 +112,7 @@ tryte tryte::logicalOr(const tryte& other) const {
     return result;
 }
 
-// Троичный XOR — сумма → обрезка до диапазона (−1, 0, +1)
+// Троичный XOR — сумма ? обрезка до диапазона (-1, 0, +1)
 tryte tryte::logicalXor(const tryte& other) const {
     tryte result;
     for (int i = 0; i < 3; ++i) {
