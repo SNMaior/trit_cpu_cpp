@@ -48,7 +48,7 @@ public:
         data = (data & mask) | (encodetrit(t) << ((2 - index) * 2));
     }
 
-	// Отладка, удалить в релизе
+    // Отладка, удалить в релизе
     std::string toString() const {
         std::string out;
         for (int i = 0; i < 3; ++i) {
@@ -61,9 +61,9 @@ public:
         return out;
     }
 
-	// Определение оператора сравнения для tryte 
+    // Определение оператора сравнения для tryte 
     constexpr bool operator==(const tryte& other) const noexcept {
-        return data == other.data;
+	    return data == other.data;
     }
 
     constexpr uint8_t raw() const noexcept { return data; }
