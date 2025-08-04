@@ -1,4 +1,4 @@
-// CPU.h вЂ” С‚СЂРёС‚РѕРІС‹Р№ РїСЂРѕС†РµСЃСЃРѕСЂ СЃ С„СѓРЅРєС†РёРµР№ Р·Р°РїРёСЃРё С‡РёСЃР»Р° РІ РїР°РјСЏС‚СЊ
+// CPU.h — тритовый процессор с функцией записи числа в память
 #pragma once
 #include <iostream>
 #include <cmath>
@@ -8,25 +8,25 @@
 #include "ALU.h"
 #include "utils.h"
 
-// РљР»Р°СЃСЃ CPU: СЃРѕРґРµСЂР¶РёС‚ СЂРµРіРёСЃС‚СЂС‹ Рё РІС‹РїРѕР»РЅСЏРµС‚ РёРЅСЃС‚СЂСѓРєС†РёРё
+// Класс CPU: содержит регистры и выполняет инструкции
 class CPU {
 public:
     bool halted = false;
 
-    tryte registers[13]; // 27 СЂРµРіРёСЃС‚СЂРѕРІ (3 С‚СЂРёС‚Р° Р°РґСЂРµСЃСѓСЋС‚ 3^3)
-    size_t pc = 0;           // РЎС‡С‘С‚С‡РёРє РєРѕРјР°РЅРґ
-    memory* memory_cpu = nullptr; // РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РїРѕРґРєР»СЋС‡С‘РЅРЅСѓСЋ РїР°РјСЏС‚СЊ
+    tryte registers[13]; // 27 регистров (3 трита адресуют 3^3)
+    size_t pc = 0;           // Счётчик команд
+    memory* memory_cpu = nullptr; // Указатель на подключённую память
 
-    // РџСЂРёРІСЏР·Р°С‚СЊ РїР°РјСЏС‚СЊ Рє CPU
+    // Привязать память к CPU
     void attachmemory(memory* mem) {
         memory_cpu = mem;
     }
 
-    // РРЅСЃС‚СЂСѓРєС†РёРё
+    // Инструкции
     void executeInstruction(const tryte& instruction) {
         switch (instruction.raw()) {
         case tryte(trit::Plus, trit::Zero, trit::Zero).raw(): { // +00 HALT
-            std::cout << "HALT: РІС‹РїРѕР»РЅРµРЅРёРµ РѕСЃС‚Р°РЅРѕРІР»РµРЅРѕ." << std::endl;
+            std::cout << "HALT: выполнение остановлено." << std::endl;
             halted = true;
             break;
         }
@@ -91,16 +91,16 @@ public:
         }
 
         default: {
-            std::cout << "РќРµРёР·РІРµСЃС‚РЅР°СЏ РёРЅСЃС‚СЂСѓРєС†РёСЏ: " << instruction.raw() << std::endl;
+            std::cout << "Неизвестная инструкция: " << instruction.raw() << std::endl;
             break;
         }
         }
     }
 
-    // РћСЃРЅРѕРІРЅРѕР№ С†РёРєР» РІС‹РїРѕР»РЅРµРЅРёСЏ
+    // Основной цикл выполнения
     void run() {
         if (!memory_cpu) {
-            std::cerr << "РћС€РёР±РєР°: РїР°РјСЏС‚СЊ РЅРµ РїРѕРґРєР»СЋС‡РµРЅР°!" << std::endl;
+            std::cerr << "Ошибка: память не подключена!" << std::endl;
             return;
         }
 

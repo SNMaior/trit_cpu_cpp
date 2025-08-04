@@ -1,4 +1,4 @@
-// utils.h - СЂР°Р·РЅС‹Рµ СѓС‚РёР»РёС‚С‹
+// utils.h - разные утилиты
 #pragma once
 #include "trit.h"
 

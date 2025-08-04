@@ -1,4 +1,4 @@
-// memory.hpp вЂ” РѕРїСЂРµРґРµР»РµРЅРёРµ РїР°РјСЏС‚Рё РёР· С‚СЂР°Р№С‚РѕРІ
+// memory.hpp — определение памяти из трайтов
 #pragma once
 #include <fstream>
 #include <sstream>
@@ -7,34 +7,34 @@
 #include <vector>
 #include "trit.h"
 
-// РљР»Р°СЃСЃ РїР°РјСЏС‚Рё: СЃРѕРґРµСЂР¶РёС‚ РјР°СЃСЃРёРІ tryte'РѕРІ
+// Класс памяти: содержит массив tryte'ов
 class memory {
     std::vector<tryte> data;
 
 public:
 
-    // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ: РІС‹РґРµР»СЏРµС‚ РїР°РјСЏС‚СЊ РїРѕРґ n С‚СЂР°Р№С‚РѕРІ
-    explicit memory(size_t size) : data(size) {} // РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РЅСѓР»СЏРјРё
+    // Конструктор: выделяет память под n трайтов
+    explicit memory(size_t size) : data(size) {} // инициализация нулями
 
-    // РџРѕР»СѓС‡РµРЅРёРµ Р·РЅР°С‡РµРЅРёСЏ РїРѕ Р°РґСЂРµСЃСѓ
+    // Получение значения по адресу
     tryte get(size_t address) const {
-        return data.at(address); // Р±РµР·РѕРїР°СЃРЅС‹Р№ РґРѕСЃС‚СѓРї СЃ РїСЂРѕРІРµСЂРєРѕР№ РіСЂР°РЅРёС†
+        return data.at(address); // безопасный доступ с проверкой границ
     }
 
-    // Р—Р°РїРёСЃСЊ Р·РЅР°С‡РµРЅРёСЏ РїРѕ Р°РґСЂРµСЃСѓ
+    // Запись значения по адресу
     void set(size_t address, const tryte& value) {
         data.at(address) = value;
     }
 
-    // РџРѕР»СѓС‡РµРЅРёРµ СЂР°Р·РјРµСЂР° РїР°РјСЏС‚Рё РІ С‚СЂР°Р№С‚Р°С…
+    // Получение размера памяти в трайтах
     size_t size() const {
         return data.size();
     }
 
-    // РЎРѕС…СЂР°РЅРµРЅРёРµ РІ С‚РµРєСЃС‚РѕРІРѕРј РІРёРґРµ (trit::Plus ...)
+    // Сохранение в текстовом виде (trit::Plus ...)
     void saveToFile(const std::string& filename) const {
         std::ofstream out(filename);
-        if (!out) throw std::runtime_error("РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё");
+        if (!out) throw std::runtime_error("Не удалось открыть файл для записи");
 
         for (const auto& word : data) {
             for (int i = 0; i < 3; ++i) {
@@ -50,10 +50,10 @@ public:
         }
     }
 
-    // Р—Р°РіСЂСѓР·РєР° РёР· С‚РµРєСЃС‚РѕРІРѕРіРѕ РІРёРґР° (trit::Plus ...)
+    // Загрузка из текстового вида (trit::Plus ...)
     void loadFromFile(const std::string& filename) {
         std::ifstream in(filename);
-        if (!in) throw std::runtime_error("РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ С‡С‚РµРЅРёСЏ");
+        if (!in) throw std::runtime_error("Не удалось открыть файл для чтения");
 
         std::string line;
         size_t i = 0;
@@ -72,7 +72,7 @@ public:
         }
     }
 
-    // Р”РѕР±Р°РІР»РµРЅРёРµ СЂР°СЃС€РёСЂРµРЅРёСЏ .tcode Рє РёРјРµРЅРё С„Р°Р№Р»Р°, РµСЃР»Рё РµРіРѕ РЅРµС‚
+    // Добавление расширения .tcode к имени файла, если его нет
     std::string ensureTcodeExtension(const std::string& filename) {
         if (filename.size() >= 6 && filename.substr(filename.size() - 6) == ".tcode")
             return filename;
@@ -84,6 +84,6 @@ private:
         if (s == "trit::Plus")  return trit::Plus;
         if (s == "trit::Zero")  return trit::Zero;
         if (s == "trit::Minus") return trit::Minus;
-        throw std::invalid_argument("РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ Р·РЅР°С‡РµРЅРёРµ С‚СЂРёС‚Р°: " + s);
+        throw std::invalid_argument("Недопустимое значение трита: " + s);
     }
 };

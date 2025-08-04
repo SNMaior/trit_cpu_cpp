@@ -1,4 +1,4 @@
-// trit.h вЂ” РѕРїСЂРµРґРµР»РµРЅРёРµ С‚РёРїР° С‚СЂРёС‚Р° Рё С‚СЂР°Р№С‚Р°
+// trit.h — определение типа трита и трайта
 #pragma once
 #include <cstdint>
 #include <string>
@@ -12,7 +12,7 @@ enum class trit : int8_t {
 
 class tryte {
 private:
-    uint8_t data = 0; // 6 Р±РёС‚ РЅР° 3 С‚СЂРёС‚Р° (2 Р±РёС‚Р° РЅР° РєР°Р¶РґС‹Р№)
+    uint8_t data = 0; // 6 бит на 3 трита (2 бита на каждый)
 
     static constexpr uint8_t encodetrit(trit t) {
         switch (t) {
@@ -20,7 +20,7 @@ private:
         case trit::Zero:  return 0b01;
         case trit::Plus:  return 0b10;
         }
-        return 0xFF; // РЅРµРґРѕСЃС‚РёР¶РёРјС‹Р№ СЃР»СѓС‡Р°Р№
+        return 0xFF; // недостижимый случай
     }
 
     static constexpr trit decodetrit(uint8_t bits) {
@@ -28,7 +28,7 @@ private:
         case 0b00: return trit::Minus;
         case 0b01: return trit::Zero;
         case 0b10: return trit::Plus;
-        default: throw std::invalid_argument("РќРµ Р·РЅР°СЋ РєР°Рє, РЅРѕ СЌС‚РѕРіРѕ Р±С‹С‚СЊ РЅРµ РґРѕР»Р¶РЅРѕ");
+        default: throw std::invalid_argument("Не знаю как, но этого быть не должно");
         }
     }
 
@@ -48,7 +48,7 @@ public:
         data = (data & mask) | (encodetrit(t) << ((2 - index) * 2));
     }
 
-    // РћС‚Р»Р°РґРєР°, СѓРґР°Р»РёС‚СЊ РІ СЂРµР»РёР·Рµ
+    // Отладка, удалить в релизе
     std::string toString() const {
         std::string out;
         for (int i = 0; i < 3; ++i) {
@@ -61,9 +61,9 @@ public:
         return out;
     }
 
-    // РћРїСЂРµРґРµР»РµРЅРёРµ РѕРїРµСЂР°С‚РѕСЂР° СЃСЂР°РІРЅРµРЅРёСЏ РґР»СЏ tryte 
+    // Определение оператора сравнения для tryte 
     constexpr bool operator==(const tryte& other) const noexcept {
-	    return data == other.data;
+        return data == other.data;
     }
 
     constexpr uint8_t raw() const noexcept { return data; }
