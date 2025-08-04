@@ -72,7 +72,7 @@ public:
         }
     }
 
-	// Добавление расширения .tcode к имени файла, если его нет
+    // Добавление расширения .tcode к имени файла, если его нет
     std::string ensureTcodeExtension(const std::string& filename) {
         if (filename.size() >= 6 && filename.substr(filename.size() - 6) == ".tcode")
             return filename;
