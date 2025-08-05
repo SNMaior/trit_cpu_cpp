@@ -1,4 +1,4 @@
-// CPU.h — тритовый процессор с функцией записи числа в память
+п»ї// CPU.h вЂ” С‚СЂРёС‚РѕРІС‹Р№ РїСЂРѕС†РµСЃСЃРѕСЂ СЃ С„СѓРЅРєС†РёРµР№ Р·Р°РїРёСЃРё С‡РёСЃР»Р° РІ РїР°РјСЏС‚СЊ
 #pragma once
 #include <iostream>
 #include <cmath>
@@ -8,25 +8,25 @@
 #include "ALU.h"
 #include "utils.h"
 
-// Класс CPU: содержит регистры и выполняет инструкции
+// РљР»Р°СЃСЃ CPU: СЃРѕРґРµСЂР¶РёС‚ СЂРµРіРёСЃС‚СЂС‹ Рё РІС‹РїРѕР»РЅСЏРµС‚ РёРЅСЃС‚СЂСѓРєС†РёРё
 class CPU {
 public:
     bool halted = false;
 
-    tryte registers[13]; // 27 регистров (3 трита адресуют 3^3)
-    size_t pc = 0;           // Счётчик команд
-    memory* memory_cpu = nullptr; // Указатель на подключённую память
+    tryte registers[13]; // 27 СЂРµРіРёСЃС‚СЂРѕРІ (3 С‚СЂРёС‚Р° Р°РґСЂРµСЃСѓСЋС‚ 3^3)
+    size_t pc = 0;           // РЎС‡С‘С‚С‡РёРє РєРѕРјР°РЅРґ
+    memory* memory_cpu = nullptr; // РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РїРѕРґРєР»СЋС‡С‘РЅРЅСѓСЋ РїР°РјСЏС‚СЊ
 
-    // Привязать память к CPU
+    // РџСЂРёРІСЏР·Р°С‚СЊ РїР°РјСЏС‚СЊ Рє CPU
     void attachmemory(memory* mem) {
         memory_cpu = mem;
     }
 
-    // Инструкции
+    // РРЅСЃС‚СЂСѓРєС†РёРё
     void executeInstruction(const tryte& instruction) {
         switch (instruction.raw()) {
         case tryte(trit::Plus, trit::Zero, trit::Zero).raw(): { // +00 HALT
-            std::cout << "HALT: выполнение остановлено." << std::endl;
+            std::cout << "HALT: РІС‹РїРѕР»РЅРµРЅРёРµ РѕСЃС‚Р°РЅРѕРІР»РµРЅРѕ." << std::endl;
             halted = true;
             break;
         }
@@ -34,14 +34,14 @@ public:
         case tryte(trit::Plus, trit::Plus, trit::Zero).raw(): { // ++0 INC R0 ++
             int reg = utils::toInt(memory_cpu->get(pc++));
             if (reg < 13) registers[reg] = registers[reg].inc();
-            std::cout << "INC reg ? " << registers[reg].toString() << std::endl;
+            std::cout << "INC reg в†’ " << registers[reg].toString() << std::endl;
             break;
         }
 
         case tryte(trit::Minus, trit::Minus, trit::Zero).raw(): { // --0 DEC R0 --
             int reg = utils::toInt(memory_cpu->get(pc++));
             if (reg < 13) registers[reg] = registers[reg].dec();
-            std::cout << "DEC reg ? " << registers[reg].toString() << std::endl;
+            std::cout << "DEC reg в†’ " << registers[reg].toString() << std::endl;
             break;
         }
 
@@ -50,36 +50,36 @@ public:
             int addr = utils::toInt(memory_cpu->get(pc++));
             if (reg < 13)
                 registers[reg] = memory_cpu->get(addr);
-            std::cout << "LOAD [" << addr << "] ? R0: " << registers[reg].toString() << std::endl;
+            std::cout << "LOAD [" << addr << "] в†’ R0: " << registers[reg].toString() << std::endl;
             break;
         }
 
         case tryte(trit::Zero, trit::Plus, trit::Plus).raw(): { // 0++ ADD R0 + R1 = R0
             int regA = utils::toInt(memory_cpu->get(pc++));
             int regB = utils::toInt(memory_cpu->get(pc++));
-            std::cout << "ADD regA ? " << registers[regA].toString() << std::endl;
-            std::cout << "ADD regB ? " << registers[regB].toString() << std::endl;
+            std::cout << "ADD regA в†’ " << registers[regA].toString() << std::endl;
+            std::cout << "ADD regB в†’ " << registers[regB].toString() << std::endl;
             if (regA < 13 && regB < 13)
                 registers[regA] = registers[regA].add(registers[regB]);
-            std::cout << "ADD R0 + R1 ? R0: " << " = " << registers[regA].toString() << std::endl;
+            std::cout << "ADD R0 + R1 в†’ R0: " << " = " << registers[regA].toString() << std::endl;
             break;
         }
 
         case tryte(trit::Zero, trit::Minus, trit::Minus).raw(): { // 0-- SUB R0 - R1 = R0
             int regA = utils::toInt(memory_cpu->get(pc++));
             int regB = utils::toInt(memory_cpu->get(pc++));
-            std::cout << "SUB regA ? " << registers[regA].toString() << std::endl;
-            std::cout << "SUB regB ? " << registers[regB].toString() << std::endl;
+            std::cout << "SUB regA в†’ " << registers[regA].toString() << std::endl;
+            std::cout << "SUB regB в†’ " << registers[regB].toString() << std::endl;
             if (regA < 13 && regB < 13)
                 registers[regA] = registers[regA].sub(registers[regB]);
-            std::cout << "SUB R0 - R1 ? R0: " << " = " << registers[regA].toString() << std::endl;
+            std::cout << "SUB R0 - R1 в†’ R0: " << " = " << registers[regA].toString() << std::endl;
             break;
         }
 
         case tryte(trit::Minus, trit::Zero, trit::Plus).raw(): { // -0+ JMP
             tryte address = memory_cpu->get(pc++);
             int addr = utils::toInt(address);
-            std::cout << "JMP ? " << addr << std::endl;
+            std::cout << "JMP в†’ " << addr << std::endl;
             pc = addr;
             break;
         }
@@ -91,16 +91,16 @@ public:
         }
 
         default: {
-            std::cout << "Неизвестная инструкция: " << instruction.raw() << std::endl;
+            std::cout << "РќРµРёР·РІРµСЃС‚РЅР°СЏ РёРЅСЃС‚СЂСѓРєС†РёСЏ: " << instruction.raw() << std::endl;
             break;
         }
         }
     }
 
-    // Основной цикл выполнения
+    // РћСЃРЅРѕРІРЅРѕР№ С†РёРєР» РІС‹РїРѕР»РЅРµРЅРёСЏ
     void run() {
         if (!memory_cpu) {
-            std::cerr << "Ошибка: память не подключена!" << std::endl;
+            std::cerr << "РћС€РёР±РєР°: РїР°РјСЏС‚СЊ РЅРµ РїРѕРґРєР»СЋС‡РµРЅР°!" << std::endl;
             return;
         }
 

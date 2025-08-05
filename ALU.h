@@ -1,4 +1,4 @@
-// ALU.h - арифметико-логическое устройство
+// ALU.h - Р°СЂРёС„РјРµС‚РёРєРѕ-Р»РѕРіРёС‡РµСЃРєРѕРµ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ
 #pragma once
 #include <algorithm>
 #include "trit.h"
@@ -16,7 +16,7 @@ tryte tryte::inc() const {
             return result;
         case trit::Plus:
             result.set(i, trit::Minus);
-            break; // продолжаем перенос
+            break; // РїСЂРѕРґРѕР»Р¶Р°РµРј РїРµСЂРµРЅРѕСЃ
         }
     }
     return result;
@@ -35,7 +35,7 @@ tryte tryte::dec() const {
             return result;
         case trit::Minus:
             result.set(i, trit::Plus);
-            break; // продолжаем перенос
+            break; // РїСЂРѕРґРѕР»Р¶Р°РµРј РїРµСЂРµРЅРѕСЃ
         }
     }
     return result;
@@ -76,7 +76,7 @@ tryte tryte::sub(const tryte& rhs) const {
 
 
 
-// Логическое НЕ (по тритам)
+// Р›РѕРіРёС‡РµСЃРєРѕРµ РќР• (РїРѕ С‚СЂРёС‚Р°Рј)
 tryte tryte::logicalNot() const {
     tryte result;
     for (int i = 0; i < 3; ++i) {
@@ -90,7 +90,7 @@ tryte tryte::logicalNot() const {
     return result;
 }
 
-// Троичный AND — поразрядный минимум
+// РўСЂРѕРёС‡РЅС‹Р№ AND вЂ” РїРѕСЂР°Р·СЂСЏРґРЅС‹Р№ РјРёРЅРёРјСѓРј
 tryte tryte::logicalAnd(const tryte& other) const {
     tryte result;
     for (int i = 0; i < 3; ++i) {
@@ -101,7 +101,7 @@ tryte tryte::logicalAnd(const tryte& other) const {
     return result;
 }
 
-// Троичный OR — поразрядный максимум
+// РўСЂРѕРёС‡РЅС‹Р№ OR вЂ” РїРѕСЂР°Р·СЂСЏРґРЅС‹Р№ РјР°РєСЃРёРјСѓРј
 tryte tryte::logicalOr(const tryte& other) const {
     tryte result;
     for (int i = 0; i < 3; ++i) {
@@ -112,7 +112,7 @@ tryte tryte::logicalOr(const tryte& other) const {
     return result;
 }
 
-// Троичный XOR — сумма ? обрезка до диапазона (-1, 0, +1)
+// РўСЂРѕРёС‡РЅС‹Р№ XOR вЂ” СЃСѓРјРјР° в†’ РѕР±СЂРµР·РєР° РґРѕ РґРёР°РїР°Р·РѕРЅР° (в€’1, 0, +1)
 tryte tryte::logicalXor(const tryte& other) const {
     tryte result;
     for (int i = 0; i < 3; ++i) {
@@ -126,12 +126,12 @@ tryte tryte::logicalXor(const tryte& other) const {
     return result;
 }
 
-// Сравнение на равенство (всё ли биты одинаковы)
+// РЎСЂР°РІРЅРµРЅРёРµ РЅР° СЂР°РІРµРЅСЃС‚РІРѕ (РІСЃС‘ Р»Рё Р±РёС‚С‹ РѕРґРёРЅР°РєРѕРІС‹)
 bool tryte::equals(const tryte& other) const {
     return raw() == other.raw();
 }
 
-// Сравнение по значению (только если ты задашь порядок тритов!)
+// РЎСЂР°РІРЅРµРЅРёРµ РїРѕ Р·РЅР°С‡РµРЅРёСЋ (С‚РѕР»СЊРєРѕ РµСЃР»Рё С‚С‹ Р·Р°РґР°С€СЊ РїРѕСЂСЏРґРѕРє С‚СЂРёС‚РѕРІ!)
 bool tryte::lessThan(const tryte& other) const {
     for (int i = 0; i < 3; ++i) {
         int a = static_cast<int>(get(i));

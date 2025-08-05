@@ -1,4 +1,4 @@
-// main.cpp — запуск тритового процессора
+п»ї// main.cpp вЂ” Р·Р°РїСѓСЃРє С‚СЂРёС‚РѕРІРѕРіРѕ РїСЂРѕС†РµСЃСЃРѕСЂР°
 #include <iostream>
 #include <windows.h>
 #include "trit.h"
@@ -12,32 +12,32 @@ int main() {
     SetConsoleCP(CP_UTF8);
     std::setlocale(LC_ALL, "");
 
-	// Инициализация процессора
+	// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїСЂРѕС†РµСЃСЃРѕСЂР°
     memory mem(12);
     CPU cpu;
     cpu.attachmemory(&mem);
     
-    cpu.registers[0] = tryte(trit::Zero, trit::Plus, trit::Plus);// регистр со значением 4 (0++)
-    cpu.registers[1] = tryte(trit::Zero, trit::Plus, trit::Zero); // регистр со значением 3 (0+0)
-    cpu.registers[12] = tryte(trit::Plus, trit::Plus, trit::Zero); // регистр со значением 12 (++0)
+    cpu.registers[0] = tryte(trit::Zero, trit::Plus, trit::Plus);// СЂРµРіРёСЃС‚СЂ СЃРѕ Р·РЅР°С‡РµРЅРёРµРј 4 (0++)
+    cpu.registers[1] = tryte(trit::Zero, trit::Plus, trit::Zero); // СЂРµРіРёСЃС‚СЂ СЃРѕ Р·РЅР°С‡РµРЅРёРµРј 3 (0+0)
+    cpu.registers[12] = tryte(trit::Plus, trit::Plus, trit::Zero); // СЂРµРіРёСЃС‚СЂ СЃРѕ Р·РЅР°С‡РµРЅРёРµРј 12 (++0)
 
-    // пишем команды в память. Сначало счетчик команды, потом команда или аргумент
+    // РїРёС€РµРј РєРѕРјР°РЅРґС‹ РІ РїР°РјСЏС‚СЊ. РЎРЅР°С‡Р°Р»Рѕ СЃС‡РµС‚С‡РёРє РєРѕРјР°РЅРґС‹, РїРѕС‚РѕРј РєРѕРјР°РЅРґР° РёР»Рё Р°СЂРіСѓРјРµРЅС‚
     mem.set(0, tryte(trit::Plus, trit::Plus, trit::Zero)); // INC
-	mem.set(1, tryte(trit::Zero, trit::Zero, trit::Zero)); // Регистр 0, получаем 5 (+--)
+	mem.set(1, tryte(trit::Zero, trit::Zero, trit::Zero)); // Р РµРіРёСЃС‚СЂ 0, РїРѕР»СѓС‡Р°РµРј 5 (+--)
 
     mem.set(2, tryte(trit::Minus, trit::Minus, trit::Zero)); // INC
-    mem.set(3, tryte(trit::Zero, trit::Zero, trit::Plus)); // Регистр 1, получаем 2 (0+-)
+    mem.set(3, tryte(trit::Zero, trit::Zero, trit::Plus)); // Р РµРіРёСЃС‚СЂ 1, РїРѕР»СѓС‡Р°РµРј 2 (0+-)
 
     mem.set(4, tryte(trit::Zero, trit::Plus, trit::Plus)); // ADD
-	mem.set(5, tryte(trit::Zero, trit::Zero, trit::Zero)); // Регистр 0, получаем 7 (+-+)
-	mem.set(6, tryte(trit::Zero, trit::Zero, trit::Plus)); // Регистр 1
+	mem.set(5, tryte(trit::Zero, trit::Zero, trit::Zero)); // Р РµРіРёСЃС‚СЂ 0, РїРѕР»СѓС‡Р°РµРј 7 (+-+)
+	mem.set(6, tryte(trit::Zero, trit::Zero, trit::Plus)); // Р РµРіРёСЃС‚СЂ 1
 
 	mem.set(7, tryte(trit::Zero, trit::Minus, trit::Minus)); // SUB
-    mem.set(8, tryte(trit::Plus, trit::Plus, trit::Zero)); // Регистр 12, получаем 5 (+--)
-    mem.set(9, tryte(trit::Zero, trit::Zero, trit::Zero)); // Регистр 0
+    mem.set(8, tryte(trit::Plus, trit::Plus, trit::Zero)); // Р РµРіРёСЃС‚СЂ 12, РїРѕР»СѓС‡Р°РµРј 5 (+--)
+    mem.set(9, tryte(trit::Zero, trit::Zero, trit::Zero)); // Р РµРіРёСЃС‚СЂ 0
 
-    mem.set(10, tryte(trit::Plus, trit::Zero, trit::Zero)); // HALT, останавливаем процессор обязательно
+    mem.set(10, tryte(trit::Plus, trit::Zero, trit::Zero)); // HALT, РѕСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїСЂРѕС†РµСЃСЃРѕСЂ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ
 
-    // запускаем процессор
+    // Р·Р°РїСѓСЃРєР°РµРј РїСЂРѕС†РµСЃСЃРѕСЂ
     cpu.run();
 }
