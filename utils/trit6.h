@@ -1,4 +1,4 @@
-﻿// trit6.h
+// trit6.h
 #pragma once
 #include <array>
 #include <string>

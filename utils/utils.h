@@ -1,6 +1,6 @@
-﻿// utils.h - разные утилиты
+// utils.h - разные утилиты
 #pragma once
-#include "trit.h"
+#include "../core/trit.h"
 
 class utils {
 public:
