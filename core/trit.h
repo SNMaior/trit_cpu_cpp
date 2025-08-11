@@ -68,8 +68,8 @@ public:
 
     constexpr uint8_t raw() const noexcept { return data; }
 
-    tryte inc() const;
-    tryte dec() const;
+    std::pair<trit, tryte> inc() const;
+    std::pair<trit, tryte> dec() const;
     tryte negate() const;
 
     struct tritSum {
@@ -79,8 +79,8 @@ public:
 
     static constexpr tritSum normalizetritSum(int sum);
 
-    tryte add(const tryte& rhs) const;
-    tryte sub(const tryte& rhs) const;
+    std::pair<trit, tryte> add(const tryte& rhs) const;
+    std::pair<trit, tryte> sub(const tryte& rhs) const;
 
     tryte logicalNot() const;
     tryte logicalAnd(const tryte& other) const;

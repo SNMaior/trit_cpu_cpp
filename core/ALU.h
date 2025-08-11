@@ -2,43 +2,48 @@
 #pragma once
 #include <algorithm>
 #include "trit.h"
+#include "registers.h"
 
-tryte tryte::inc() const {
+std::pair<trit, tryte> tryte::inc() const {
     tryte result = *this;
+	EX = trit::Zero; // флаг переполнения
     for (int i = 2; i >= 0; --i) {
         trit t = result.get(i);
         switch (t) {
         case trit::Minus:
             result.set(i, trit::Zero);
-            return result;
+            return { EX, result };
         case trit::Zero:
             result.set(i, trit::Plus);
-            return result;
+            return { EX, result };
         case trit::Plus:
             result.set(i, trit::Minus);
             break; // продолжаем перенос
         }
     }
-    return result;
+    EX = trit::Plus;
+    return { EX, result };
 }
 
-tryte tryte::dec() const {
+std::pair<trit, tryte> tryte::dec() const {
     tryte result = *this;
+    EX = trit::Zero; // флаг переполнения
     for (int i = 2; i >= 0; --i) {
         trit t = result.get(i);
         switch (t) {
         case trit::Plus:
             result.set(i, trit::Zero);
-            return result;
+            return  { EX, result };
         case trit::Zero:
             result.set(i, trit::Minus);
-            return result;
+            return  { EX, result };
         case trit::Minus:
             result.set(i, trit::Plus);
             break; // продолжаем перенос
         }
     }
-    return result;
+    EX = trit::Minus;
+    return  { EX, result };
 }
 
 tryte tryte::negate() const {
@@ -51,26 +56,42 @@ tryte tryte::negate() const {
 }
 
 constexpr tryte::tritSum tryte::normalizetritSum(int sum) {
-    if (sum > 1) return { trit::Minus, +1 };
-    if (sum < -1) return { trit::Plus, -1 };
-    return { static_cast<trit>(sum), 0 };
+    switch (sum) {
+    case  3: return { trit::Zero,  +1 };
+    case  2: return { trit::Minus, +1 };
+    case  1: return { trit::Plus,   0 };
+    case  0: return { trit::Zero,   0 };
+    case -1: return { trit::Minus,  0 };
+    case -2: return { trit::Plus,  -1 };
+    case -3: return { trit::Zero,  -1 };
+    }
+    return { trit::Zero, 0 }; // на всякий случай
 }
 
-tryte tryte::add(const tryte& rhs) const {
+
+std::pair<trit, tryte> tryte::add(const tryte& rhs) const {
     tryte result;
     int carry = 0;
+    EX = trit::Zero; // флаг переполнения
     for (int i = 2; i >= 0; --i) {
         int a = static_cast<int>(this->get(i));
         int b = static_cast<int>(rhs.get(i));
         int s = a + b + carry;
+
         tritSum norm = normalizetritSum(s);
         result.set(i, norm.value);
         carry = norm.carry;
     }
-    return result;
+    if (carry > 0) {
+        EX = trit::Plus;   // переполнение в положительную сторону
+    }
+    else if (carry < 0) {
+        EX = trit::Minus;  // переполнение в отрицательную сторону
+    }
+    return  { EX, result };
 }
 
-tryte tryte::sub(const tryte& rhs) const {
+std::pair<trit, tryte> tryte::sub(const tryte& rhs) const {
     return this->add(rhs.negate());
 }
 

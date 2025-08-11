@@ -7,14 +7,13 @@
 #include "memory.h"
 #include "ALU.h"
 #include "../utils/utils.h"
+#include "registers.h"
 
 // Класс CPU: содержит регистры и выполняет инструкции
 class CPU {
 public:
     bool halted = false;
 
-    tryte registers[27]; // 27 регистров (3 трита адресуют 3^3)
-    size_t pc = 0;           // Счётчик команд
     memory* memory_cpu = nullptr; // Указатель на подключённую память
 
     // Привязать память к CPU
@@ -34,16 +33,26 @@ public:
         case tryte(trit::Plus, trit::Plus, trit::Zero).raw(): { // ++0 INC R0 ++
             int reg = utils::toInt(memory_cpu->get(pc++)) + 13;
             std::cout << "reg → " << reg << std::endl;
-            if (reg < 26) registers[reg] = registers[reg].inc();
-            std::cout << "INC reg → " << registers[reg].toString() << std::endl;
+            if (reg < 26) {
+                std::pair<trit, tryte> result_pair = registers[reg].inc();
+                EX = result_pair.first;
+                tryte result = result_pair.second;
+                registers[reg] = result;
+            }
+                std::cout << "INC reg → "<< static_cast<int>(EX) << registers[reg].toString() << std::endl;
             break;
         }
 
         case tryte(trit::Minus, trit::Minus, trit::Zero).raw(): { // --0 DEC R0 --
             int reg = utils::toInt(memory_cpu->get(pc++)) + 13;
             std::cout << "reg → " << reg << std::endl;
-            if (reg < 26) registers[reg] = registers[reg].dec();
-            std::cout << "DEC reg → " << registers[reg].toString() << std::endl;
+            if (reg < 26) { 
+                std::pair<trit, tryte> result_pair = registers[reg].dec();
+                EX = result_pair.first;
+                tryte result = result_pair.second;
+                registers[reg] = result;
+            }
+            std::cout << "DEC reg → " << static_cast<int>(EX) << registers[reg].toString() << std::endl;
             break;
         }
 
@@ -61,20 +70,28 @@ public:
             int regB = utils::toInt(memory_cpu->get(pc++)) + 13;
             std::cout << "ADD regA → " << registers[regA].toString() << std::endl;
             std::cout << "ADD regB → " << registers[regB].toString() << std::endl;
-            if (regA < 26 && regB < 26)
-                registers[regA] = registers[regA].add(registers[regB]);
-            std::cout << "ADD R0 + R1 → R0: " << " = " << registers[regA].toString() << std::endl;
+            if (regA < 26 && regB < 26) {
+                std::pair<trit, tryte> result_pair = registers[regA].add(registers[regB]);
+                EX = result_pair.first;
+                tryte result = result_pair.second;
+                registers[regA] = result;
+            }
+            std::cout << "ADD R0 + R1 → R0: " << " = " << static_cast<int>(EX) << registers[regA].toString() << std::endl;
             break;
         }
 
         case tryte(trit::Zero, trit::Minus, trit::Minus).raw(): { // 0-- SUB R0 - R1 = R0
             int regA = utils::toInt(memory_cpu->get(pc++)) + 13;
             int regB = utils::toInt(memory_cpu->get(pc++)) + 13;
-            std::cout << "SUB regA → " << regA << std::endl;
-            std::cout << "SUB regB → " << regB << std::endl;
-            if (regA < 26 && regB < 26)
-                registers[regA] = registers[regA].sub(registers[regB]);
-            std::cout << "SUB R0 - R1 → R0: " << " = " << registers[regA].toString() << std::endl;
+            std::cout << "SUB regA → " << registers[regA].toString() << std::endl;
+            std::cout << "SUB regB → " << registers[regB].toString() << std::endl;
+            if (regA < 26 && regB < 26)            {
+                std::pair<trit, tryte> result_pair = registers[regA].sub(registers[regB]);
+                EX = result_pair.first;
+                tryte result = result_pair.second;
+                registers[regA] = result;
+            }
+            std::cout << "SUB R0 - R1 → R0: " << " = " << static_cast<int>(EX) << registers[regA].toString() << std::endl;
             break;
         }
 

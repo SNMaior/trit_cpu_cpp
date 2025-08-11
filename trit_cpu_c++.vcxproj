@@ -127,6 +127,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ALU.h" />
+    <ClInclude Include="core\registers.h" />
     <ClInclude Include="CPU.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="trit.h" />
