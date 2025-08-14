@@ -29,7 +29,7 @@ public:
             break;
         }
 
-        case tryte(trit::Plus, trit::Zero, trit::Zero).raw(): { // +00 HALT
+        case tryte(trit::Zero, trit::Zero, trit::Plus).raw(): { // +00 HALT
             std::cout << "HALT: выполнение остановлено." << std::endl;
             halted = true;
             break;
@@ -70,6 +70,41 @@ public:
             break;
         }
 
+        case tryte(trit::Plus, trit::Zero, trit::Minus).raw(): { // +0- STORE
+            int reg = utils::toInt(memory_cpu->get(pc++)) + 13; // номер регистра
+            int addr = utils::toInt(memory_cpu->get(pc++));      // адрес в памяти
+            if (reg < 26) {
+                memory_cpu->set(addr, registers[reg]);
+                std::cout << "STORE R" << reg << " → [" << addr << "]: " << registers[reg].toString() << std::endl;
+            }
+            break;
+        }
+
+        case tryte(trit::Minus, trit::Zero, trit::Plus).raw(): { // -0+ LOADM
+            int reg_dst = utils::toInt(memory_cpu->get(pc++)) + 13; // куда грузим
+            int reg_addr = utils::toInt(memory_cpu->get(pc++)) + 13; // откуда берём адрес
+            if (reg_dst < 26 && reg_addr < 26) {
+                int addr = utils::toInt(registers[reg_addr]);
+                registers[reg_dst] = memory_cpu->get(addr);
+                std::cout << "LOADM [" << addr << "] → R" << reg_dst << ": " << registers[reg_dst].toString() << std::endl;
+            }
+            break;
+        }
+
+        case tryte(trit::Minus, trit::Zero, trit::Minus).raw(): { // -0- STOREM
+            int reg_src = utils::toInt(memory_cpu->get(pc++)) + 13; // откуда берём данные
+            int reg_addr = utils::toInt(memory_cpu->get(pc++)) + 13; // где лежит адрес
+
+            if (reg_src < 27 && reg_addr < 27) {
+                int addr = utils::toInt(registers[reg_addr]); // достаём адрес из регистра
+                memory_cpu->set(addr, registers[reg_src]);    // пишем в память
+                std::cout << "STOREM R" << (reg_src - 13)
+                    << " → mem[" << addr << "]: "
+                    << registers[reg_src].toString() << std::endl;
+            }
+            break;
+        }
+
         case tryte(trit::Zero, trit::Plus, trit::Plus).raw(): { // 0++ ADD R0 + R1 = R0
             int regA = utils::toInt(memory_cpu->get(pc++)) + 13;
             int regB = utils::toInt(memory_cpu->get(pc++)) + 13;
@@ -100,7 +135,7 @@ public:
             break;
         }
 
-        case tryte(trit::Minus, trit::Zero, trit::Plus).raw(): { // -0+ JMP
+        case tryte(trit::Zero, trit::Minus, trit::Plus).raw(): { // 0-+ JMP
             tryte address = memory_cpu->get(pc++);
             int addr = utils::toInt(address);
             std::cout << "JMP → " << addr << std::endl;
@@ -139,34 +174,35 @@ public:
 
 
 /*
-| №  | Инструкция | Назначение                           |
-| -- | ---------- | ------------------------------------ |
-| 0  | NOP        | Пустая операция                      |
-| 1  | HLT        | Остановка программы                  |
-| 2  | RESET      | Сброс процессора                     |
-| 3  | LOAD       | Загрузка значения в регистр          |
-| 4  | STORE      | Запись значения регистра в память    |
-| 5  | LOADM      | Загрузка из памяти в регистр         |
-| 6  | INC        | Увеличение регистра на 1             |
-| 7  | DEC        | Уменьшение регистра на 1             |
-| 8  | ADD        | Сложение                             |
-| 9  | SUB        | Вычитание                            |
-| 10 | JMP        | Безусловный переход                  |
-| 11 | JE         | Переход если равно                   |
-| 12 | JNE        | Переход если не равно                |
-| 13 | CMP        | Сравнение                            |
-| 14 | PUSH       | Поместить в стек                     |
-| 15 | POP        | Извлечь из стека                     |
-| 16 | CALL       | Вызов подпрограммы                   |
-| 17 | RET        | Возврат из подпрограммы              |
-| 18 | MOV        | Копировать значение между регистрами |
-| 19 | MUL        | Умножение                            |
-| 20 | DIV        | Деление                              |
-| 21 | AND        | Побитовое И                          |
-| 22 | OR         | Побитовое ИЛИ                        |
-| 23 | XOR        | Исключающее ИЛИ                      |
-| 24 | NOT        | Побитовое отрицание                  |
-| 25 | SHL        | Сдвиг влево                          |
-| 26 | SHR        | Сдвиг вправо                         |
+| №   | Инструкция | Назначение                           |
+| --  | ---------- | ------------------------------------ |
+| 000 | NOP        | Пустая операция                      |
+| 00+ | HLT        | Остановка программы                  |
+| ??? | RESET      | Сброс процессора                     |
+| +0+ | LOAD       | Загрузка значения в регистр          |
+| +0- | STORE      | Запись значения регистра в память    |
+| -0+ | LOADM      | Загрузка из памяти в регистр         |
+| -0- | STOREM     | Запись в память из регистра          |
+| ++0 | INC        | Увеличение регистра на 1             |
+| --0 | DEC        | Уменьшение регистра на 1             |
+| 0++ | ADD        | Сложение                             |
+| 0-- | SUB        | Вычитание                            |
+| 0-+ | JMP        | Безусловный переход                  |
+| ??? | JE         | Переход если равно                   |
+| ??? | JNE        | Переход если не равно                |
+| ??? | CMP        | Сравнение                            |
+| ??? | PUSH       | Поместить в стек                     |
+| ??? | POP        | Извлечь из стека                     |
+| ??? | CALL       | Вызов подпрограммы                   |
+| ??? | RET        | Возврат из подпрограммы              |
+| ??? | MOV        | Копировать значение между регистрами |
+| ??? | MUL        | Умножение                            |
+| ??? | DIV        | Деление                              |
+| ??? | AND        | Побитовое И                          |
+| ??? | OR         | Побитовое ИЛИ                        |
+| ??? | XOR        | Исключающее ИЛИ                      |
+| --- | NOT        | Побитовое отрицание                  |
+| ??? | SHL        | Сдвиг влево                          |
+| ??? | SHR        | Сдвиг вправо                         |
 
 */
