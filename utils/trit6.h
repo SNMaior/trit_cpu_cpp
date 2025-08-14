@@ -119,7 +119,7 @@ const char* TRIT6[729] = {
          "", "", ""
 };
 
-
+/*
 void p_trit6(const std::vector<int>& codes) {
     for (int code : codes) {
         if (code >= 0 && code < 729)
@@ -129,3 +129,24 @@ void p_trit6(const std::vector<int>& codes) {
     }
     std::cout << std::endl;
 }
+*/
+
+void i_trit6(int regIndex, int code) {
+    if (code < 0 || code > 728) code = 0;      // защита по таблице TRIT6
+
+    symreg[regIndex][0] = utils::fromInt(code / 27 - 13); // старший tryte
+    symreg[regIndex][1] = utils::fromInt(code % 27 - 13); // младший tryte
+}
+
+
+int o_trit6(int regIndex) {
+    return ((utils::toInt(symreg[regIndex][0]))+13) * 27 + ((utils::toInt(symreg[regIndex][1]))+13);
+}
+
+/*
+Запишем букву 'A' в символьный регистр 0
+i_trit6(0, 140);
+
+Выведем символ из регистра
+std::cout << TRIT6[o_trit6(0)] << "\n"; // Выведет 'A'
+*/

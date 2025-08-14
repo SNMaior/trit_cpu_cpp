@@ -5,6 +5,8 @@
 
 tryte registers[27];
 
+tryte symreg[8][2];
+
 trit EX;
 
-size_t pc = 0;           // Счётчик команд
+size_t pc = 0;		   // Счётчик команд
