@@ -29,7 +29,7 @@ public:
             break;
         }
 
-        case tryte(trit::Zero, trit::Zero, trit::Plus).raw(): { // +00 HALT
+        case tryte(trit::Zero, trit::Zero, trit::Plus).raw(): { // 00+ HALT
             std::cout << "HALT: выполнение остановлено." << std::endl;
             halted = true;
             break;
@@ -37,7 +37,6 @@ public:
 
         case tryte(trit::Plus, trit::Plus, trit::Zero).raw(): { // ++0 INC R0 ++
             int reg = utils::toInt(memory_cpu->get(pc++)) + 13;
-            std::cout << "reg → " << reg << std::endl;
             if (reg < 26) {
                 std::pair<trit, tryte> result_pair = registers[reg].inc();
                 EX = result_pair.first;
@@ -50,7 +49,6 @@ public:
 
         case tryte(trit::Minus, trit::Minus, trit::Zero).raw(): { // --0 DEC R0 --
             int reg = utils::toInt(memory_cpu->get(pc++)) + 13;
-            std::cout << "reg → " << reg << std::endl;
             if (reg < 26) { 
                 std::pair<trit, tryte> result_pair = registers[reg].dec();
                 EX = result_pair.first;
