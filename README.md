@@ -294,8 +294,50 @@ std::cout << TRIT6[o_trit6(0)] << TRIT6[o_trit6(1)] << TRIT6[o_trit6(3)] << TRIT
 std::cout << TRIT6[o_trit6(0)] << TRIT6[o_trit6(2)] << TRIT6[o_trit6(3)] << TRIT6[o_trit6(4)] << TRIT6[o_trit6(3)] // выводит "R1 = " в консоль
     << registers[1].toString() << std::endl; // Выводим R1 для отладки
 ```
+Пример использования LOAD, STORE, LOADM, STOREM:
+```cpp
+// Создаём память на 14 шагов
+memory mem(14);
 
+// Создаём CPU и подключаем память
+CPU cpu;
+cpu.attachmemory(&mem);
+
+// В регистр R2 положим адрес 8 (для LOADM)
+registers[2] = tryte(trit::Plus, trit::Zero, trit::Minus);
+
+mem.set(0, tryte(trit::Plus, trit::Zero, trit::Plus)); // LOAD
+mem.set(1, tryte(trit::Minus, trit::Minus, trit::Minus)); // регистр R0, получаем -12 (--0)
+mem.set(2, tryte(trit::Plus, trit::Plus, trit::Plus));      // адрес 13
+
+mem.set(3, tryte(trit::Plus, trit::Zero, trit::Minus)); // STORE
+mem.set(4, tryte(trit::Minus, trit::Minus, trit::Minus)); // регистр R0
+mem.set(5, tryte(trit::Plus, trit::Zero, trit::Zero));     // адрес 9, получаем эквивалент записи mem.set(9, tryte(trit::Minus, trit::Zero, trit::Minus));
+
+mem.set(6, tryte(trit::Minus, trit::Zero, trit::Plus)); // LOADM
+mem.set(7, tryte(trit::Minus, trit::Minus, trit::Zero)); // регистр R1 (куда грузим), получем -11 (--+)
+mem.set(8, tryte(trit::Minus, trit::Minus, trit::Plus)); // регистр R2 (в нём адрес)
+
+mem.set(9, tryte(trit::Zero, trit::Zero, trit::Zero)); // тут значение не имеет смысла, т.к. мы его перезапишем на -0-
+mem.set(10, tryte(trit::Minus, trit::Minus, trit::Zero)); // регистр R1 (в нём значение)
+mem.set(11, tryte(trit::Minus, trit::Minus, trit::Plus)); // регистр R2 (в нём адрес), получаем эквивалент записи mem.set(8, tryte(trit::Minus, trit::Minus, trit::Plus));
+
+mem.set(12, tryte(trit::Zero, trit::Zero, trit::Plus)); // HALT
+    
+// Положим в память[13] значение -10 (-0-)
+mem.set(13, tryte(trit::Minus, trit::Zero, trit::Minus));
+
+// Запускаем CPU
+cpu.run();
+
+// После выполнения:
+std::cout << "R0 = " << registers[0].toString() << std::endl;
+std::cout << "R1 = " << registers[1].toString() << std::endl;
+std::cout << "mem[10] = " << mem.get(10).toString() << std::endl;
+std::cout << "mem[8] = " << mem.get(8).toString() << std::endl;
+std::cout << "mem[13] = " << mem.get(13).toString() << std::endl;
+```
 
 !!!ВАЖНО!!!
 
-Считать номера регистров
+Считать номера регистров, если не понимаете как перевести из десятичной системы в троичную, можно использовать сайт https://www.trinary.su/projects/translator/
