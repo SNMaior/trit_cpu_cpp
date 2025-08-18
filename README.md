@@ -341,3 +341,7 @@ std::cout << "mem[13] = " << mem.get(13).toString() << std::endl;
 !!!ВАЖНО!!!
 
 Считать номера регистров, если не понимаете как перевести из десятичной системы в троичную, можно использовать сайт https://www.trinary.su/projects/translator/
+
+## License / Лицензия
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.  
+Этот проект распространяется по лицензии MIT — см. файл [LICENSE](LICENSE) для подробностей.
