@@ -141,9 +141,9 @@ public:
             break;
         }
 
-        case tryte(trit::Minus, trit::Minus, trit::Minus).raw(): { // --- negate
+        case tryte(trit::Minus, trit::Minus, trit::Minus).raw(): { // --- NOT
             int reg = utils::toInt(memory_cpu->get(pc++)) + 13;
-            if (reg < 26) registers[reg] = registers[reg].negate();
+            if (reg < 26) registers[reg] = registers[reg].Not();
             break;
         }
 
@@ -200,7 +200,5 @@ public:
 | ??? | OR         | Побитовое ИЛИ                        |
 | ??? | XOR        | Исключающее ИЛИ                      |
 | --- | NOT        | Побитовое отрицание                  |
-| ??? | SHL        | Сдвиг влево                          |
-| ??? | SHR        | Сдвиг вправо                         |
 
 */

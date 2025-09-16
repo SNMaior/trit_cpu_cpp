@@ -46,15 +46,53 @@ std::pair<trit, tryte> tryte::dec() const {
     return  { EX, result };
 }
 
-tryte tryte::negate() const {
-    tryte result;
-    for (int i = 0; i < 3; ++i) {
-        trit t = get(i);
-        result.set(i, static_cast<trit>(-static_cast<int>(t)));
-    }
-    return result;
-}
+/*
+// Схема троичного полусумматора
 
+A+ = (A OR trit::Minus) AND (NOT A OR trit::Plus)
+A- = (A OR trit::Plus) AND (NOT A OR trit::Minus)
+A0 =  NOT(A+ OR A-)
+
+B+ = (B OR trit::Minus) AND (NOT B OR trit::Plus)
+B- = (B OR trit::Plus) AND (NOT B OR trit::Minus)
+B0 = NOT(B+ OR B-)
+
+C+ = A+ AND B+
+C- = A- AND B-
+C0 = NOT(C+ OR C-)
+C = (C+ AND trit::Plus) OR (C- AND trit::Minus) OR (C0 AND trit::Zero) // перенос
+
+S+ = (A+ AND B0) OR (A0 AND B+) OR (A- AND B-)
+S- = (A- AND B0) OR (A0 AND B-) OR (A+ AND B+)
+S0 = NOT(S+ OR S-)
+S = (S+ AND trit::Plus) OR (S- AND trit::Minus) OR (S0 AND trit::Zero) // сумма
+
+
+Проблема: если A или B равно 0, то А+, А- или В+, В- тоже будут 0, что является ошибкой. Их результат должен быть -, так A0 или B0 будет равен +.
+(C- AND trit::Minus) и (S- AND trit::Minus) можно убрать, так как они не влияют на результат.
+
+// Схема троичного сумматора
+
+// Входы: A, B, Cin
+// Выходы: S, Cout
+// HALFADD — вызов полусумматора
+
+// Шаг 1. Складываем A и B
+HALFADD A, B -> (S1, C1) 
+
+// Шаг 2. Складываем промежуточную сумму S1 и Cin
+HALFADD S1, Cin -> (S2, C2)
+
+// Шаг 3. Складываем переносы C1 и C2
+HALFADD C1, C2 -> (S3, C3)
+
+// Шаг 4. Формируем окончательные выходы
+S2 -> S // сумма
+OR  S3, C3 -> Cout // перенос складываем (чтобы покрыть случай удвоенного переноса)
+*/
+
+// Альтернативный сумматор
+// А + В + Cin = S + 3*Cout
 constexpr tryte::tritSum tryte::normalizetritSum(int sum) {
     switch (sum) {
     case  3: return { trit::Zero,  +1 };
@@ -65,9 +103,7 @@ constexpr tryte::tritSum tryte::normalizetritSum(int sum) {
     case -2: return { trit::Plus,  -1 };
     case -3: return { trit::Zero,  -1 };
     }
-    return { trit::Zero, 0 }; // на всякий случай
 }
-
 
 std::pair<trit, tryte> tryte::add(const tryte& rhs) const {
     tryte result;
@@ -76,7 +112,7 @@ std::pair<trit, tryte> tryte::add(const tryte& rhs) const {
     for (int i = 2; i >= 0; --i) {
         int a = static_cast<int>(this->get(i));
         int b = static_cast<int>(rhs.get(i));
-        int s = a + b + carry;
+        int s = a + b + carry; // читы
 
         tritSum norm = normalizetritSum(s);
         result.set(i, norm.value);
@@ -92,13 +128,13 @@ std::pair<trit, tryte> tryte::add(const tryte& rhs) const {
 }
 
 std::pair<trit, tryte> tryte::sub(const tryte& rhs) const {
-    return this->add(rhs.negate());
+    return this->add(rhs.Not());
 }
 
 
 
 // Логическое НЕ (по тритам)
-tryte tryte::logicalNot() const {
+tryte tryte::Not() const {
     tryte result;
     for (int i = 0; i < 3; ++i) {
         trit t = get(i);
@@ -112,7 +148,7 @@ tryte tryte::logicalNot() const {
 }
 
 // Троичный AND — поразрядный минимум
-tryte tryte::logicalAnd(const tryte& other) const {
+tryte tryte::And(const tryte& other) const {
     tryte result;
     for (int i = 0; i < 3; ++i) {
         int a = static_cast<int>(get(i));
@@ -123,7 +159,7 @@ tryte tryte::logicalAnd(const tryte& other) const {
 }
 
 // Троичный OR — поразрядный максимум
-tryte tryte::logicalOr(const tryte& other) const {
+tryte tryte::Or(const tryte& other) const {
     tryte result;
     for (int i = 0; i < 3; ++i) {
         int a = static_cast<int>(get(i));
@@ -134,7 +170,7 @@ tryte tryte::logicalOr(const tryte& other) const {
 }
 
 // Троичный XOR — сумма → обрезка до диапазона (−1, 0, +1)
-tryte tryte::logicalXor(const tryte& other) const {
+tryte tryte::Xor(const tryte& other) const {
     tryte result;
     for (int i = 0; i < 3; ++i) {
         int a = static_cast<int>(get(i));

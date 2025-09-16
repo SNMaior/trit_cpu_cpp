@@ -70,7 +70,6 @@ public:
 
     std::pair<trit, tryte> inc() const;
     std::pair<trit, tryte> dec() const;
-    tryte negate() const;
 
     struct tritSum {
         trit value;
@@ -82,10 +81,10 @@ public:
     std::pair<trit, tryte> add(const tryte& rhs) const;
     std::pair<trit, tryte> sub(const tryte& rhs) const;
 
-    tryte logicalNot() const;
-    tryte logicalAnd(const tryte& other) const;
-    tryte logicalOr(const tryte& other) const;
-    tryte logicalXor(const tryte& other) const;
+    tryte Not() const;
+    tryte And(const tryte& other) const;
+    tryte Or(const tryte& other) const;
+    tryte Xor(const tryte& other) const;
 
     bool equals(const tryte& other) const;
     bool lessThan(const tryte& other) const;
