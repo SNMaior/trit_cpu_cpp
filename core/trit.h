@@ -28,7 +28,7 @@ private:
         case 0b00: return trit::Minus;
         case 0b01: return trit::Zero;
         case 0b10: return trit::Plus;
-        default: throw std::invalid_argument("Не знаю как, но этого быть не должно");
+        default: throw std::invalid_argument("Не знаю как, но этого быть не должно, получит бит 0b11");
         }
     }
 
@@ -66,6 +66,10 @@ public:
         return data == other.data;
     }
 
+    bool operator<(const tryte& other) const noexcept {
+        return this->lessThan(other);
+	}
+
     constexpr uint8_t raw() const noexcept { return data; }
 
     std::pair<trit, tryte> inc() const;
@@ -90,4 +94,38 @@ public:
     bool lessThan(const tryte& other) const;
     bool greaterThan(const tryte& other) const;
 
+};
+
+struct tword {
+    tryte HI; // старший tryte
+    tryte LO; // младший tryte
+
+    tword(tryte hi = tryte(), tryte lo = tryte())
+        : HI(hi), LO(lo) {
+    }
+
+    bool operator==(const tword& other) const noexcept {
+        return HI == other.HI && LO == other.LO;
+    }
+
+    bool operator!=(const tword& other) const noexcept {
+        return !(*this == other);
+    }
+
+    bool operator<(const tword& other) const noexcept {
+        if (HI == other.HI) return LO < other.LO;
+        return HI < other.HI;
+    }
+
+    bool operator>(const tword& other) const noexcept {
+        return other < *this;
+    }
+
+    // // Отладка, удалить в релизе
+    std::string toString() const {
+        return "[" + HI.toString() + " " + LO.toString() + "]";
+    }
+
+    tword inc() const;
+    tword dec() const;
 };

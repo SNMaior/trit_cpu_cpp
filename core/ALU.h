@@ -71,22 +71,22 @@ S = (S+ AND trit::Plus) OR (S- AND trit::Minus) OR (S0 AND trit::Zero) // сум
 Проблема: если A или B равно 0, то А+, А- или В+, В- тоже будут 0, что является ошибкой. Их результат должен быть -, так A0 или B0 будет равен +.
 (C- AND trit::Minus) и (S- AND trit::Minus) можно убрать, так как они не влияют на результат.
 
-// Схема троичного сумматора
+Схема троичного сумматора
 
-// Входы: A, B, Cin
-// Выходы: S, Cout
-// HALFADD — вызов полусумматора
+Входы: A, B, Cin
+Выходы: S, Cout
+HALFADD — вызов полусумматора
 
-// Шаг 1. Складываем A и B
+Шаг 1. Складываем A и B
 HALFADD A, B -> (S1, C1) 
 
-// Шаг 2. Складываем промежуточную сумму S1 и Cin
+Шаг 2. Складываем промежуточную сумму S1 и Cin
 HALFADD S1, Cin -> (S2, C2)
 
-// Шаг 3. Складываем переносы C1 и C2
+Шаг 3. Складываем переносы C1 и C2
 HALFADD C1, C2 -> (S3, C3)
 
-// Шаг 4. Формируем окончательные выходы
+Шаг 4. Формируем окончательные выходы
 S2 -> S // сумма
 OR  S3, C3 -> Cout // перенос складываем (чтобы покрыть случай удвоенного переноса)
 */
@@ -102,6 +102,7 @@ constexpr tryte::tritSum tryte::normalizetritSum(int sum) {
     case -1: return { trit::Minus,  0 };
     case -2: return { trit::Plus,  -1 };
     case -3: return { trit::Zero,  -1 };
+    default: std::cerr << "Ошибка в нормализаторе сумм";
     }
 }
 
@@ -201,4 +202,34 @@ bool tryte::lessThan(const tryte& other) const {
 
 bool tryte::greaterThan(const tryte& other) const {
     return other.lessThan(*this);
+}
+
+
+// Для tword
+tword tword::inc() const {
+    tword result = *this;
+
+    auto lo_inc = result.LO.inc();
+    result.LO = lo_inc.second;
+
+    if (lo_inc.first == trit::Plus) {
+        auto hi_inc = result.HI.inc();
+        result.HI = hi_inc.second;
+    }
+
+    return result;
+}
+
+tword tword::dec() const {
+    tword result = *this;
+
+    auto lo_dec = result.LO.dec();
+    result.LO = lo_dec.second;
+
+    if (lo_dec.first == trit::Minus) {
+        auto hi_dec = result.HI.dec();
+        result.HI = hi_dec.second;
+    }
+
+    return result;
 }

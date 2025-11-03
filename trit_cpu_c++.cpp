@@ -12,23 +12,28 @@ int main() {
 	SetConsoleCP(CP_UTF8);
 
 	// Инициализация процессора
-	memory mem(20);
-	CPU cpu;
+	Memory mem;
+	Registers registers;
+	CPU cpu(registers);
 	cpu.attachmemory(&mem);
-	
-	registers[0] = tryte(trit::Plus, trit::Plus, trit::Plus);// регистр со значением 13 (+++)
-	registers[1] = tryte(trit::Minus, trit::Minus, trit::Plus); // регистр со значением -11 (-++)
-	registers[2] = tryte(trit::Plus, trit::Plus, trit::Plus); // регистр со значением -11 (-++)
+	Wide_Reg wreg;
 
-	mem.set(0, tryte(trit::Zero, trit::Plus, trit::Plus)); // ADD
-	mem.set(1, tryte(trit::Minus, trit::Minus, trit::Minus)); // Регистр 0, 
-	mem.set(2, tryte(trit::Minus, trit::Minus, trit::Zero)); // Регистр 1
-	
-	mem.set(3, tryte(trit::Zero, trit::Minus, trit::Minus)); // SUB
-	mem.set(4, tryte(trit::Minus, trit::Minus, trit::Zero)); // Регистр 1, 
-	mem.set(5, tryte(trit::Minus, trit::Minus, trit::Plus)); // Регистр 2
+	wreg[tryte(trit::Plus, trit::Minus, trit::Minus)] = tword{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Minus, trit::Zero) };
+	std::cout << wreg[tryte(trit::Plus, trit::Minus, trit::Minus)].toString() << std::endl;
 
-	mem.set(6, tryte(trit::Plus, trit::Zero, trit::Zero)); // HALT, останавливаем процессор обязательно
+	registers[tryte(trit::Minus, trit::Minus, trit::Minus)] = tryte(trit::Plus, trit::Plus, trit::Plus);// регистр со значением 13 (+++)
+	registers[tryte(trit::Minus, trit::Minus, trit::Zero)] = tryte(trit::Minus, trit::Minus, trit::Plus); // регистр со значением -11 (--+)
+	registers[tryte(trit::Minus, trit::Minus, trit::Plus)] = tryte(trit::Plus, trit::Plus, trit::Plus); // регистр со значением 13 (+++)
+	
+	std::cout << registers[tryte(trit::Minus, trit::Minus, trit::Minus)].toString() << std::endl;
+	std::cout << registers[tryte(trit::Minus, trit::Minus, trit::Zero)].toString() << std::endl;
+	std::cout << registers[tryte(trit::Minus, trit::Minus, trit::Plus)].toString() << std::endl;
+
+	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Minus, trit::Zero) }, tryte(trit::Zero, trit::Plus, trit::Plus));
+	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Minus, trit::Plus) }, tryte(trit::Minus, trit::Minus, trit::Minus));
+	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Zero, trit::Minus) }, tryte(trit::Minus, trit::Minus, trit::Plus));
+	
+	mem.set(pc{tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Zero, trit::Zero)}, tryte(trit::Zero, trit::Zero, trit::Plus)); // HALT, останавливаем процессор обязательно
 
 	// запускаем процессор
 	cpu.run();
