@@ -2,48 +2,47 @@
 #pragma once
 #include <algorithm>
 #include "trit.h"
-#include "registers.h"
 
 std::pair<trit, tryte> tryte::inc() const {
     tryte result = *this;
-	EX = trit::Zero; // флаг переполнения
+	trit carry = trit::Zero; // флаг переполнения
     for (int i = 2; i >= 0; --i) {
         trit t = result.get(i);
         switch (t) {
         case trit::Minus:
             result.set(i, trit::Zero);
-            return { EX, result };
+            return { carry, result };
         case trit::Zero:
             result.set(i, trit::Plus);
-            return { EX, result };
+            return { carry, result };
         case trit::Plus:
             result.set(i, trit::Minus);
             break; // продолжаем перенос
         }
     }
-    EX = trit::Plus;
-    return { EX, result };
+    carry = trit::Plus;
+    return { carry, result };
 }
 
 std::pair<trit, tryte> tryte::dec() const {
     tryte result = *this;
-    EX = trit::Zero; // флаг переполнения
+    trit carry = trit::Zero; // флаг переполнения
     for (int i = 2; i >= 0; --i) {
         trit t = result.get(i);
         switch (t) {
         case trit::Plus:
             result.set(i, trit::Zero);
-            return  { EX, result };
+            return  { carry, result };
         case trit::Zero:
             result.set(i, trit::Minus);
-            return  { EX, result };
+            return  { carry, result };
         case trit::Minus:
             result.set(i, trit::Plus);
             break; // продолжаем перенос
         }
     }
-    EX = trit::Minus;
-    return  { EX, result };
+    carry = trit::Minus;
+    return  { carry, result };
 }
 
 /*
@@ -109,7 +108,7 @@ constexpr tryte::tritSum tryte::normalizetritSum(int sum) {
 std::pair<trit, tryte> tryte::add(const tryte& rhs) const {
     tryte result;
     int carry = 0;
-    EX = trit::Zero; // флаг переполнения
+    trit carry_flag = trit::Zero; // флаг переполнения
     for (int i = 2; i >= 0; --i) {
         int a = static_cast<int>(this->get(i));
         int b = static_cast<int>(rhs.get(i));
@@ -120,12 +119,12 @@ std::pair<trit, tryte> tryte::add(const tryte& rhs) const {
         carry = norm.carry;
     }
     if (carry > 0) {
-        EX = trit::Plus;   // переполнение в положительную сторону
+        carry_flag = trit::Plus;   // переполнение в положительную сторону
     }
     else if (carry < 0) {
-        EX = trit::Minus;  // переполнение в отрицательную сторону
+        carry_flag = trit::Minus;  // переполнение в отрицательную сторону
     }
-    return  { EX, result };
+    return  { carry_flag, result };
 }
 
 std::pair<trit, tryte> tryte::sub(const tryte& rhs) const {
@@ -232,4 +231,18 @@ tword tword::dec() const {
     }
 
     return result;
+}
+
+
+trit sign_cmp(const tryte& t) noexcept {
+    trit h = t.get(0); // high
+    if (h != trit::Zero)
+        return h;
+
+    trit m = t.get(1); // mid
+    if (m != trit::Zero)
+        return m;
+
+    trit l = t.get(2); // low
+    return l; // может быть Zero, Plus, Minus
 }

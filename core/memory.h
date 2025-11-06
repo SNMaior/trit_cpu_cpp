@@ -8,6 +8,7 @@
 #include <variant>
 #include "trit.h"
 #include "ALU.h"
+#include "registers.h"
 
 struct cell {
     std::variant<tryte, pc, trit> value;
@@ -71,6 +72,10 @@ public:
     void set(const pc& address, const pc& value) {
         data[address] = cell(value);
     }
+
+    void set(const pc& address, const trit& value) {
+        data[address] = cell(value);
+	}
 
     // Сохранение в текстовом виде (trit::Plus ...)
     void saveToFile(const std::string& filename) const {

@@ -28,9 +28,9 @@ struct Registers {// общие регистры
 
 tryte symreg[8][2]; // символьные регистры
 
-trit EX; // регистр переполнения
+extern trit EX; // регистр переполнения
 
-trit logic; // логический регистр	   
+extern trit logic; // логический регистр	   
 
 struct pc : public tword { // Счётчик команд
 	using tword::tword;

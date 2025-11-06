@@ -6,8 +6,6 @@
 #include "trit.h"
 #include "memory.h"
 #include "ALU.h"
-//#include "../utils/utils.h"
-#include "registers.h"
 
 // Класс CPU: содержит регистры и выполняет инструкции
 class CPU {
@@ -22,10 +20,9 @@ public:
     }
 
     pc PC;
-    //wide_reg WR;
+    Wide_Reg wreg;
     Registers& registers;
     CPU(Registers& regs) : registers(regs) {}
-    Wide_Reg wreg;
 
     // Инструкции
     void executeInstruction(const tryte& instruction) {
@@ -43,7 +40,8 @@ public:
 
         case tryte(trit::Plus, trit::Plus, trit::Zero).raw(): { // ++0 INC R0 ++
             tryte reg = memory_cpu->get(PC.inc()).asTryte();
-            auto [EX, result] = registers[reg].inc();
+            auto [carry, result] = registers[reg].inc();
+            EX = carry;
             registers[reg] = result;
             std::cout << "INC reg > "<< static_cast<int>(EX) << registers[reg].toString() << std::endl;
             break;
@@ -51,7 +49,8 @@ public:
 
         case tryte(trit::Minus, trit::Minus, trit::Zero).raw(): { // --0 DEC R0 --
             tryte reg = memory_cpu->get(PC.inc()).asTryte();
-            auto [EX, result] = registers[reg].dec();
+            auto [carry, result] = registers[reg].dec();
+            EX = carry;
             registers[reg] = result;
             std::cout << "DEC reg > " << static_cast<int>(EX) << registers[reg].toString() << std::endl;
             break;
@@ -94,7 +93,8 @@ public:
             tryte regB = memory_cpu->get(PC.inc()).asTryte();
             std::cout << "ADD regA > " << registers[regA].toString() << std::endl;
             std::cout << "ADD regB > " << registers[regB].toString() << std::endl;
-            auto [EX, result] = registers[regA].add(registers[regB]);
+            auto [carry, result] = registers[regA].add(registers[regB]);
+            EX = carry;
             registers[regA] = result;
             std::cout << "ADD R0 + R1 > R0: " << " = " << static_cast<int>(EX) << registers[regA].toString() << std::endl;
             break;
@@ -105,7 +105,8 @@ public:
             tryte regB = memory_cpu->get(PC.inc()).asTryte();
             std::cout << "SUB regA > " << registers[regA].toString() << std::endl;
             std::cout << "SUB regB > " << registers[regB].toString() << std::endl;
-            auto [EX, result] = registers[regA].sub(registers[regB]);
+            auto [carry, result] = registers[regA].sub(registers[regB]);
+            EX = carry;
             registers[regA] = result;
             std::cout << "SUB R0 - R1 > R0: " << " = " << static_cast<int>(EX) << registers[regA].toString() << std::endl;
             break;
@@ -113,6 +114,7 @@ public:
 
         case tryte(trit::Zero, trit::Minus, trit::Plus).raw(): { // 0-+ JMP
             pc addr = memory_cpu->get(PC.inc()).asPc();
+			PC = addr;
             std::cout << "JMP > " << addr.HI.toString() << addr.LO.toString() << std::endl;
             break;
         }
@@ -120,6 +122,66 @@ public:
         case tryte(trit::Minus, trit::Minus, trit::Minus).raw(): { // --- NOT
             tryte reg = memory_cpu->get(PC.inc()).asTryte();
             registers[reg] = registers[reg].Not();
+            break;
+        }
+
+        case tryte(trit::Zero, trit::Plus, trit::Zero).raw(): { // 0+0 MOV
+            trit mode = memory_cpu->get(PC.inc()).asTrit();
+            tryte reg_dst = memory_cpu->get(PC.inc()).asTryte();
+            if (mode == trit::Minus) { // число
+                registers[reg_dst] = memory_cpu->get(PC.inc()).asTryte();
+                std::cout << "MOV R" << reg_dst.toString() << " == " << registers[reg_dst].toString() << std::endl;
+            }
+            else if (mode == trit::Plus) { // регистры
+                wreg[reg_dst] = registers[memory_cpu->get(PC.inc()).asTryte()];
+            }
+            else if (mode == trit::Zero) { // EX+tryte
+                wreg[reg_dst] = tword{ tryte(trit::Zero, trit::Zero, EX), registers[memory_cpu->get(PC.inc()).asTryte()] };
+				EX = trit::Zero;
+			}
+            break;
+        }
+
+        case tryte(trit::Zero, trit::Minus, trit::Zero).raw(): { // 0-0 CMP R0 - R1 = logic
+            tryte regA = memory_cpu->get(PC.inc()).asTryte();
+            tryte regB = memory_cpu->get(PC.inc()).asTryte();
+            std::cout << "CMP regA > " << registers[regA].toString() << std::endl;
+            std::cout << "CMP regB > " << registers[regB].toString() << std::endl;
+            auto [carry, result] = registers[regA].sub(registers[regB]);
+
+            // Если carry != Zero — был выход за диапазон, и знак нам даёт carry
+            if (carry != trit::Zero) {
+                logic = carry;           // переполнение определяет знак сравнения
+            }
+            else {
+                logic = sign_cmp(result);  // иначе берем знак результата
+            }
+
+            std::cout << "CMP R0 == R1 = logic:" << " = " << static_cast<int>(logic) << std::endl;
+            break;
+        }
+
+        case tryte(trit::Plus, trit::Minus, trit::Plus).raw(): { // +-+ JE  
+            pc addr = memory_cpu->get(PC.inc()).asPc();
+            if (logic == trit::Zero) {
+                PC = addr;
+                std::cout << "JE выполнено, переход в " << addr.HI.toString() << addr.LO.toString() << std::endl;
+            }
+            else {
+                std::cout << "JE не выполнено" << std::endl;
+            }
+            break;
+        }
+
+        case tryte(trit::Zero, trit::Plus, trit::Minus).raw(): { // 0+- JNE  
+            pc addr = memory_cpu->get(PC.inc()).asPc();
+            if (logic != trit::Zero) {
+				PC = addr;
+                std::cout << "JNE выполнено, переход в " << addr.HI.toString() << addr.LO.toString() << std::endl;
+            }
+            else {
+                std::cout << "JNE не выполнено" << std::endl;
+            }
             break;
         }
 
@@ -165,14 +227,14 @@ public:
 | 0++ | ADD        | Сложение                             |
 | 0-- | SUB        | Вычитание                            |
 | 0-+ | JMP        | Безусловный переход                  |
-| ??? | JE         | Переход если равно                   |
-| ??? | JNE        | Переход если не равно                |
-| ??? | CMP        | Сравнение                            |
+| +-+ | JE         | Переход если равно                   |
+| 0+- | JNE        | Переход если не равно                |
+| 0-0 | CMP        | Сравнение                            |
 | ??? | PUSH       | Поместить в стек                     |
 | ??? | POP        | Извлечь из стека                     |
 | ??? | CALL       | Вызов подпрограммы                   |
 | ??? | RET        | Возврат из подпрограммы              |
-| ??? | MOV        | Копировать значение между регистрами |
+| 0+0 | MOV        | Копировать значение между регистрами |
 | ??? | MUL        | Умножение                            |
 | ??? | DIV        | Деление                              |
 | ??? | AND        | Побитовое И                          |
