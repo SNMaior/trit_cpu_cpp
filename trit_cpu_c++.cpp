@@ -9,8 +9,9 @@
 
 #include "core/registers.h"
 
-trit EX = trit::Zero;// регистр переполнения
-trit logic = trit::Zero;// логический регистр
+trit EX = trit::Zero;// флаг переполнения
+trit LG= trit::Zero;// логический флаг
+trit SP = trit::Zero;// флаг стека
 
 int main() {
 	SetConsoleOutputCP(CP_UTF8);
@@ -39,9 +40,9 @@ int main() {
 	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Zero, trit::Plus) }, tryte(trit::Zero, trit::Plus, trit::Zero)); // MOV -1, R1, -11
 	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Plus, trit::Minus) }, trit::Minus);
 	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Plus, trit::Zero) }, tryte(trit::Minus, trit::Minus, trit::Zero));
-	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Plus, trit::Plus) }, tryte(trit::Minus, trit::Minus, trit::Plus));
+	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Plus, trit::Plus) }, tryte(trit::Plus, trit::Plus, trit::Minus));
 
-	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Zero, trit::Minus, trit::Minus) }, tryte(trit::Plus, trit::Plus, trit::Zero)); // INC R0
+	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Zero, trit::Minus, trit::Minus) }, tryte(trit::Plus, trit::Plus, trit::Zero)); // INC R1
 	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Zero, trit::Minus, trit::Zero) }, tryte(trit::Minus, trit::Minus, trit::Zero));
 
 	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Zero, trit::Minus, trit::Plus) }, tryte(trit::Zero, trit::Minus, trit::Zero)); // CMP R0, R1

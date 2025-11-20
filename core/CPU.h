@@ -20,6 +20,7 @@ public:
     }
 
     pc PC;
+    rsp RSP = {tryte(trit::Plus, trit::Plus, trit::Plus), tryte(trit::Plus, trit::Plus, trit::Plus)};
     Wide_Reg wreg;
     Registers& registers;
     CPU(Registers& regs) : registers(regs) {}
@@ -151,19 +152,20 @@ public:
 
             // Если carry != Zero — был выход за диапазон, и знак нам даёт carry
             if (carry != trit::Zero) {
-                logic = carry;           // переполнение определяет знак сравнения
+                LG = carry;           // переполнение определяет знак сравнения
             }
             else {
-                logic = sign_cmp(result);  // иначе берем знак результата
+                LG = sign_cmp(result);  // иначе берем знак результата
             }
 
-            std::cout << "CMP R0 == R1 = logic:" << " = " << static_cast<int>(logic) << std::endl;
+            std::cout << "CMP R0 == R1" << std::endl;
+            std::cout << "LG:" << " = " << static_cast<int>(LG) << std::endl;
             break;
         }
 
         case tryte(trit::Plus, trit::Minus, trit::Plus).raw(): { // +-+ JE  
             pc addr = memory_cpu->get(PC.inc()).asPc();
-            if (logic == trit::Zero) {
+            if (LG == trit::Zero) {
                 PC = addr;
                 std::cout << "JE выполнено, переход в " << addr.HI.toString() << addr.LO.toString() << std::endl;
             }
@@ -173,9 +175,9 @@ public:
             break;
         }
 
-        case tryte(trit::Zero, trit::Plus, trit::Minus).raw(): { // 0+- JNE  
+        case tryte(trit::Minus, trit::Minus, trit::Plus).raw(): { // --+ JNE  
             pc addr = memory_cpu->get(PC.inc()).asPc();
-            if (logic != trit::Zero) {
+            if (LG != trit::Zero) {
 				PC = addr;
                 std::cout << "JNE выполнено, переход в " << addr.HI.toString() << addr.LO.toString() << std::endl;
             }
@@ -184,6 +186,71 @@ public:
             }
             break;
         }
+
+        case tryte(trit::Minus, trit::Plus, trit::Plus).raw(): { // -++ PUSH
+			tryte reg_src = memory_cpu->get(PC.inc()).asTryte(); // откуда берём данные
+            rsp RSP_MAX = { tryte(trit::Plus, trit::Plus, trit::Plus), tryte(trit::Minus, trit::Minus, trit::Minus) };
+            if (RSP == RSP_MAX || SP == trit::Plus) {
+                SP = trit::Plus;
+                std::cerr << "Ошибка: переполнение стека!" << std::endl;
+            }
+            else {
+                memory_cpu->set(RSP, registers[reg_src]);
+                RSP.dec();
+                SP = trit::Zero;
+                std::cout << "PUSH R" << reg_src.toString() << " > [" << RSP.HI.toString() << RSP.LO.toString() << "]: " << registers[reg_src].toString() << std::endl;
+			}
+            break;
+        }
+
+        case tryte(trit::Minus, trit::Plus, trit::Minus).raw(): { // -+- POP
+            tryte reg_dst = memory_cpu->get(PC.inc()).asTryte(); // куда грузим
+            rsp RSP_MIN = { tryte(trit::Plus, trit::Plus, trit::Plus), tryte(trit::Plus, trit::Plus, trit::Plus) };
+            if (RSP == RSP_MIN || SP == trit::Minus) {
+                SP = trit::Minus;
+                std::cerr << "Ошибка: стек пуст!" << std::endl;
+            }
+            else {
+                RSP.inc();
+                registers[reg_dst] = memory_cpu->get(RSP).asTryte();
+                SP = trit::Zero;
+                std::cout << "POP R" << reg_dst.toString() << " > [" << RSP.HI.toString() << RSP.LO.toString() << "]: " << registers[reg_dst].toString() << std::endl;
+            }
+            break;
+        }
+
+
+        case tryte(trit::Plus, trit::Zero, trit::Zero).raw(): { // +00 CALL
+			pc addr = memory_cpu->get(PC.inc()).asPc(); // куда прыгаем
+			pc addr_ret = PC.inc(); // адрес возврата
+            rsp RSP_MAX = { tryte(trit::Plus, trit::Plus, trit::Plus), tryte(trit::Minus, trit::Minus, trit::Minus) };
+            if (RSP == RSP_MAX || SP == trit::Plus) {
+                SP = trit::Plus;
+                std::cerr << "Ошибка: переполнение стека!" << std::endl;
+            }
+            else {
+                PC = addr;
+                memory_cpu->set(RSP, addr_ret);
+                RSP.dec();
+                SP = trit::Zero;
+            }
+            break;
+        }
+        
+        case tryte(trit::Minus, trit::Zero, trit::Zero).raw(): { // -00 RET
+            rsp RSP_MIN = { tryte(trit::Plus, trit::Plus, trit::Plus), tryte(trit::Plus, trit::Plus, trit::Plus) };
+            if (RSP == RSP_MIN || SP == trit::Minus) {
+                SP = trit::Minus;
+                std::cerr << "Ошибка: стек пуст!" << std::endl;
+            }
+            else {
+                RSP.inc();
+                PC = memory_cpu->get(RSP).asPc();
+                SP = trit::Zero;
+            }
+            break;
+        }
+
 
         default: {
             std::cout << "Неизвестная инструкция: " << instruction.raw() << std::endl;
@@ -228,12 +295,12 @@ public:
 | 0-- | SUB        | Вычитание                            |
 | 0-+ | JMP        | Безусловный переход                  |
 | +-+ | JE         | Переход если равно                   |
-| 0+- | JNE        | Переход если не равно                |
+| --+ | JNE        | Переход если не равно                |
 | 0-0 | CMP        | Сравнение                            |
-| ??? | PUSH       | Поместить в стек                     |
-| ??? | POP        | Извлечь из стека                     |
-| ??? | CALL       | Вызов подпрограммы                   |
-| ??? | RET        | Возврат из подпрограммы              |
+| -++ | PUSH       | Поместить в стек                     |
+| -+- | POP        | Извлечь из стека                     |
+| +00 | CALL       | Вызов подпрограммы                   |
+| -00 | RET        | Возврат из подпрограммы              |
 | 0+0 | MOV        | Копировать значение между регистрами |
 | ??? | MUL        | Умножение                            |
 | ??? | DIV        | Деление                              |

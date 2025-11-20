@@ -28,9 +28,11 @@ struct Registers {// общие регистры
 
 tryte symreg[8][2]; // символьные регистры
 
-extern trit EX; // регистр переполнения
+extern trit EX; // флаг переполнения
 
-extern trit logic; // логический регистр	   
+extern trit LG; // логический флаг	   
+
+extern trit SP; // флаг стека	
 
 struct pc : public tword { // Счётчик команд
 	using tword::tword;
@@ -41,7 +43,34 @@ struct pc : public tword { // Счётчик команд
 		LO = tpm.LO;
 		return *this;
     }
+
+    pc& dec() {
+        tword tpm = this->tword::dec();
+        HI = tpm.HI;
+        LO = tpm.LO;
+        return *this;
+    }
+
 }; 
+
+struct rsp : public tword { // Счётчик стека
+    using tword::tword;
+    operator pc() const { return pc(HI, LO); }
+
+    rsp& inc() {
+        tword tpm = this->tword::inc();
+        HI = tpm.HI;
+        LO = tpm.LO;
+        return *this;
+    }
+
+    rsp& dec() {
+        tword tpm = this->tword::dec();
+        HI = tpm.HI;
+        LO = tpm.LO;
+        return *this;
+    }
+};
 
 struct Wide_Reg : public tword { // Широкий регистр
     tword data[9];
