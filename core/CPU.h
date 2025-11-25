@@ -140,6 +140,9 @@ public:
                 wreg[reg_dst] = tword{ tryte(trit::Zero, trit::Zero, EX), registers[memory_cpu->get(PC.inc()).asTryte()] };
 				EX = trit::Zero;
 			}
+            else {
+                std::cerr << "Ошибка: неверный режим!" << std::endl;
+            }
             break;
         }
 
@@ -251,6 +254,58 @@ public:
             break;
         }
 
+        case tryte(trit::Plus, trit::Plus, trit::Plus).raw(): { // +++ SHF
+            tryte reg_src = memory_cpu->get(PC.inc()).asTryte();
+			trit mode = memory_cpu->get(PC.inc()).asTrit();
+
+            if (mode == trit::Minus){ // вправо
+                registers[reg_src] = registers[reg_src].shift_r();
+			}
+            else if (mode == trit::Plus) { // влево
+                registers[reg_src] = registers[reg_src].shift_l();
+            }
+            else {
+                std::cerr << "Ошибка: неверный режим сдвига!" << std::endl;
+			}
+            break;
+        }
+
+        case tryte(trit::Zero, trit::Zero, trit::Minus).raw(): { // 00+ ASH
+            tryte reg_src = memory_cpu->get(PC.inc()).asTryte();
+            trit mode = memory_cpu->get(PC.inc()).asTrit();
+
+            if (mode == trit::Minus) { // вправо
+                wreg[tryte(trit::Plus, trit::Plus, trit::Zero)] = ar_shf_r(registers[reg_src]);
+            }
+            else if (mode == trit::Plus) { // влево
+                wreg[tryte(trit::Plus, trit::Plus, trit::Zero)] = ar_shf_l(registers[reg_src]);
+            }
+            else {
+                std::cerr << "Ошибка: неверный режим сдвига!" << std::endl;
+            }
+            break;
+        }
+
+
+        case tryte(trit::Minus, trit::Plus, trit::Zero).raw(): { // -+0 MUL
+            tryte regA = memory_cpu->get(PC.inc()).asTryte();
+            tryte regB = memory_cpu->get(PC.inc()).asTryte();
+            std::cout << "MUL regA > " << registers[regA].toString() << std::endl;
+            std::cout << "MUL regB > " << registers[regB].toString() << std::endl;
+			wreg[tryte(trit::Plus, trit::Plus, trit::Plus)] = mul(registers[regA], registers[regB]);
+            std::cout << "MUL WR0 = " << wreg[tryte(trit::Plus, trit::Plus, trit::Plus)].HI.toString() << wreg[tryte(trit::Plus, trit::Plus, trit::Plus)].LO.toString() << std::endl;
+            break;
+        }
+
+        case tryte(trit::Zero, trit::Plus, trit::Minus).raw(): { // 0+- DIV
+            tryte regA = memory_cpu->get(PC.inc()).asTryte();
+            tryte regB = memory_cpu->get(PC.inc()).asTryte();
+            std::cout << "DIV regA > " << registers[regA].toString() << std::endl;
+            std::cout << "DIV regB > " << registers[regB].toString() << std::endl;
+            wreg[tryte(trit::Plus, trit::Plus, trit::Plus)] = div(registers[regA], registers[regB]);
+            std::cout << "DIV WR0 = " << wreg[tryte(trit::Plus, trit::Plus, trit::Plus)].HI.toString() << wreg[tryte(trit::Plus, trit::Plus, trit::Plus)].LO.toString() << std::endl;
+            break;
+        }
 
         default: {
             std::cout << "Неизвестная инструкция: " << instruction.raw() << std::endl;
@@ -283,8 +338,8 @@ public:
 | №   | Инструкция | Назначение                           |
 | --  | ---------- | ------------------------------------ |
 | 000 | NOP        | Пустая операция                      |
-| 00+ | HLT        | Остановка программы                  |
-| ??? | RESET      | Сброс процессора                     |
+| 00+ | HLT        | Остановка программы              000 |
+| ??? | RESET      | Сброс процессора                 00+ |
 | +0+ | LOAD       | Загрузка значения в регистр          |
 | +0- | STORE      | Запись значения регистра в память    |
 | -0+ | LOADM      | Загрузка из памяти в регистр         |
@@ -302,11 +357,13 @@ public:
 | +00 | CALL       | Вызов подпрограммы                   |
 | -00 | RET        | Возврат из подпрограммы              |
 | 0+0 | MOV        | Копировать значение между регистрами |
-| ??? | MUL        | Умножение                            |
-| ??? | DIV        | Деление                              |
-| ??? | AND        | Побитовое И                          |
-| ??? | OR         | Побитовое ИЛИ                        |
-| ??? | XOR        | Исключающее ИЛИ                      |
+| -+0 | MUL        | Умножение                            |
+| 0+- | DIV        | Деление                              |
+| +-0 | AND        | Побитовое И                          |
+| +-- | OR         | Побитовое ИЛИ                        |
+| ++- | XOR        | Исключающее ИЛИ                      |
 | --- | NOT        | Побитовое отрицание                  |
+| +++ | SHF        | Сдвиг трита                          |
+| 00- | ASH        | Арифметический сдвиг трита           |
 
 */

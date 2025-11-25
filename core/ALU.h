@@ -2,6 +2,7 @@
 #pragma once
 #include <algorithm>
 #include "trit.h"
+#include "registers.h"
 
 std::pair<trit, tryte> tryte::inc() const {
     tryte result = *this;
@@ -183,12 +184,12 @@ tryte tryte::Xor(const tryte& other) const {
     return result;
 }
 
-// Сравнение на равенство (всё ли биты одинаковы)
+// Сравнение на равенство
 bool tryte::equals(const tryte& other) const {
     return raw() == other.raw();
 }
 
-// Сравнение по значению (только если ты задашь порядок тритов!)
+// Сравнение по значению
 bool tryte::lessThan(const tryte& other) const {
     for (int i = 0; i < 3; ++i) {
         int a = static_cast<int>(get(i));
@@ -245,4 +246,103 @@ trit sign_cmp(const tryte& t) noexcept {
 
     trit l = t.get(2); // low
     return l; // может быть Zero, Plus, Minus
+}
+
+
+tword ar_shf_r(const tword& t) {
+	tword tword_result;
+    tword_result.HI.set(0, EX);
+    tword_result.HI.set(1, t.HI.get(0));
+    tword_result.HI.set(2, t.HI.get(1));
+    tword_result.LO.set(0, t.HI.get(2));
+    tword_result.LO.set(1, t.LO.get(0));
+    tword_result.LO.set(2, t.LO.get(1));
+	return tword_result;
+}
+
+tword ar_shf_l(const tword& t) {
+    tword tword_result;
+    tword_result.HI.set(0, t.HI.get(1));
+    tword_result.HI.set(1, t.HI.get(2));
+    tword_result.HI.set(2, t.LO.get(0));
+    tword_result.LO.set(0, t.LO.get(1));
+    tword_result.LO.set(1, t.LO.get(2));
+    tword_result.LO.set(2, trit::Zero);
+    return tword_result;
+}
+
+tryte tryte::shift_l() const noexcept {
+    tryte tryte_result;
+    tryte_result.set(0, get(1));
+    tryte_result.set(1, get(2));
+    tryte_result.set(2, trit::Zero);
+    return tryte_result;
+}
+
+tryte tryte::shift_r() const noexcept {
+    tryte tryte_result;
+    tryte_result.set(0, trit::Zero);
+    tryte_result.set(1, get(0));
+    tryte_result.set(2, get(1));
+    return tryte_result;
+}
+
+
+
+tword mul(tryte& t1, tryte& t2) {
+	tword result = (tryte(trit::Zero, trit::Zero, trit::Zero), t2);
+    for (int i = 0; i < 3; ++i) {
+
+        if (result.LO.get(2) == trit::Plus) {
+            auto [carry, newHI] = result.HI.add(t1);
+			EX = carry;
+			result.HI = newHI;
+        }
+        else if (result.LO.get(2) == trit::Minus) {
+            auto [carry, newHI] = result.HI.sub(t1);
+            EX = carry;
+            result.HI = newHI;
+        }
+		EX = trit::Zero;
+    }
+	return result;
+}
+
+tword div(const tryte& t1, const tryte& t2) {
+    tword result = {
+        tryte(trit::Zero, trit::Zero, trit::Zero), t1 };
+
+    if (t2 == tryte(trit::Zero, trit::Zero, trit::Zero)) {
+        std::cerr << "Ошибка, деление на ноль";
+        return result;
+    }
+
+    for (int i = 0; i < 3; ++i) {
+        result = ar_shf_l(result);
+
+        trit cmp_hi_pos = sign_cmp(result.HI.sub(t2).second);
+        trit cmp_hi_neg = sign_cmp(result.HI.sub(t2.Not()).second);
+
+        trit q;
+
+        if (cmp_hi_pos != trit::Minus) {
+
+            auto [carry, newHI] = result.HI.sub(t2);
+            result.HI = newHI;
+            q = trit::Plus;
+        }
+        else if (cmp_hi_neg != trit::Plus) {
+
+            auto [carry, newHI] = result.HI.add(t2);
+            result.HI = newHI;
+            q = trit::Minus;
+        }
+        else {
+            q = trit::Zero;
+        }
+
+        result.LO.set(2, q);
+    }
+
+    return result;
 }

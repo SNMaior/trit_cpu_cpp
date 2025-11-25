@@ -94,6 +94,8 @@ public:
     bool lessThan(const tryte& other) const;
     bool greaterThan(const tryte& other) const;
 
+    tryte shift_l() const noexcept;
+    tryte shift_r() const noexcept;
 };
 
 struct tword {

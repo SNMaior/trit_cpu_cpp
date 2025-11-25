@@ -35,24 +35,18 @@ int main() {
 	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Minus, trit::Zero) }, tryte(trit::Zero, trit::Plus, trit::Zero)); // MOV -1, R0, 13
 	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Minus, trit::Plus) }, trit::Minus);
 	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Zero, trit::Minus) }, tryte(trit::Minus, trit::Minus, trit::Minus));
-	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Zero, trit::Zero) }, tryte(trit::Plus, trit::Plus, trit::Plus));
+	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Zero, trit::Zero) }, tryte(trit::Plus, trit::Plus, trit::Zero));
 	
 	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Zero, trit::Plus) }, tryte(trit::Zero, trit::Plus, trit::Zero)); // MOV -1, R1, -11
 	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Plus, trit::Minus) }, trit::Minus);
 	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Plus, trit::Zero) }, tryte(trit::Minus, trit::Minus, trit::Zero));
-	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Plus, trit::Plus) }, tryte(trit::Plus, trit::Plus, trit::Minus));
+	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Plus, trit::Plus) }, tryte(trit::Zero, trit::Plus, trit::Minus));
 
-	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Zero, trit::Minus, trit::Minus) }, tryte(trit::Plus, trit::Plus, trit::Zero)); // INC R1
-	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Zero, trit::Minus, trit::Zero) }, tryte(trit::Minus, trit::Minus, trit::Zero));
+	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Zero, trit::Minus, trit::Minus) }, tryte(trit::Zero, trit::Plus, trit::Minus)); // CMP R0, R1
+	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Zero, trit::Minus, trit::Zero) }, tryte(trit::Minus, trit::Minus, trit::Minus));
+	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Zero, trit::Minus, trit::Plus) }, tryte(trit::Minus, trit::Minus, trit::Zero));
 
-	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Zero, trit::Minus, trit::Plus) }, tryte(trit::Zero, trit::Minus, trit::Zero)); // CMP R0, R1
-	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Zero, trit::Zero, trit::Minus) }, tryte(trit::Minus, trit::Minus, trit::Minus));
-	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Zero, trit::Zero, trit::Zero) }, tryte(trit::Minus, trit::Minus, trit::Zero));
-
-	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Zero, trit::Zero, trit::Plus) }, tryte(trit::Zero, trit::Plus, trit::Minus)); // JNE 
-	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Zero, trit::Plus, trit::Minus) }, pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Minus, trit::Plus, trit::Plus) });
-
-	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Zero, trit::Plus, trit::Zero) }, tryte(trit::Zero, trit::Zero, trit::Plus)); // HALT, останавливаем процессор обязательно
+	mem.set(pc{ tryte(trit::Minus, trit::Minus, trit::Minus), tryte(trit::Zero, trit::Zero, trit::Minus) }, tryte(trit::Zero, trit::Zero, trit::Plus)); // HALT, останавливаем процессор обязательно
 
 	// запускаем процессор
 	cpu.run();
